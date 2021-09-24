@@ -25,7 +25,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category="Camera")
 	class USpringArmComponent* SpringArmComponent;
 
+	UPROPERTY(EditAnywhere, Category="Attack")
+	TSubclassOf<AActor> ProjectileClass;
+
 	void MoveForward(float Value);
+	void MoveRight(float Value);
+	
+	void PrimaryAttack();
 
 public:	
 	// Called every frame
