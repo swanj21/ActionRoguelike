@@ -20,7 +20,7 @@ ARogueCharacter::ARogueCharacter() {
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	GetCharacterMovement()->bOrientRotationToMovement = true; // This will rotate our character no matter what we're moving towards.
-	
+	GetCharacterMovement()->JumpZVelocity = 500.f;
 	bUseControllerRotationYaw = false;
 }
 
@@ -39,6 +39,8 @@ void ARogueCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ARogueCharacter::PrimaryAttack);
 }
