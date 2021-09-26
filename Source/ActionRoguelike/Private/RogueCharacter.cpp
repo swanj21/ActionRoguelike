@@ -3,6 +3,7 @@
 #include "RogueCharacter.h"
 
 #include "RogueMagicProjectile.h"
+#include "RogueInteractionComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -13,11 +14,16 @@ ARogueCharacter::ARogueCharacter() {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Spring arm
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComponent->SetupAttachment(RootComponent);
 
+	// Camera
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	// Interaction
+	InteractionComponent = CreateDefaultSubobject<URogueInteractionComponent>(TEXT("InteractionComponent"));
 
 	GetCharacterMovement()->bOrientRotationToMovement = true; // This will rotate our character no matter what we're moving towards.
 	GetCharacterMovement()->JumpZVelocity = 500.f;
@@ -43,6 +49,7 @@ void ARogueCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ARogueCharacter::PrimaryAttack);
+	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ARogueCharacter::PrimaryInteract);
 }
 
 void ARogueCharacter::MoveForward(float Value) {
@@ -64,10 +71,21 @@ void ARogueCharacter::MoveRight(float Value) {
 }
 
 void ARogueCharacter::PrimaryAttack() {
+	PlayAnimMontage(AttackAnimation);
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ARogueCharacter::PrimaryAttack_TimeElapsed, .18f);
+	// GetWorldTimerManager().ClearTimer(TimerHandle_PrimaryAttack);
+}
+
+void ARogueCharacter::PrimaryAttack_TimeElapsed() const {
 	FTransform SpawnTM = FTransform(GetControlRotation(), GetMesh()->GetSocketLocation("Muzzle_01"));
 
 	FActorSpawnParameters spawnParams;
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, spawnParams);
+}
+
+
+void ARogueCharacter::PrimaryInteract() {
+	InteractionComponent->PrimaryInteract();
 }

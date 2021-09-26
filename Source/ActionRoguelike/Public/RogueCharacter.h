@@ -27,12 +27,22 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Attack")
 	TSubclassOf<AActor> ProjectileClass;
+	
+	UPROPERTY(EditAnywhere, Category="Attack")
+	class UAnimMontage* AttackAnimation;
+
+	UPROPERTY(VisibleAnywhere, Category="Interaction")
+	class URogueInteractionComponent* InteractionComponent;
+
+	FTimerHandle TimerHandle_PrimaryAttack;
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	
 	void PrimaryAttack();
-
+	void PrimaryAttack_TimeElapsed() const;
+	void PrimaryInteract();
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
