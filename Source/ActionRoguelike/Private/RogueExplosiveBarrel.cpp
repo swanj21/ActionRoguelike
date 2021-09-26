@@ -3,7 +3,6 @@
 
 #include "RogueExplosiveBarrel.h"
 
-#include "RogueMagicProjectile.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 
 // Sets default values
@@ -30,21 +29,25 @@ ARogueExplosiveBarrel::ARogueExplosiveBarrel() {
 // Called when the game starts or when spawned
 void ARogueExplosiveBarrel::BeginPlay() {
 	Super::BeginPlay();
-
-	StaticMesh->OnComponentHit.AddDynamic(this, &ARogueExplosiveBarrel::OnComponentHit);
 }
 
 // Called every frame
 void ARogueExplosiveBarrel::Tick(float DeltaTime) { Super::Tick(DeltaTime); }
 
+void ARogueExplosiveBarrel::PostInitializeComponents() {
+	Super::PostInitializeComponents();
+	StaticMesh->OnComponentHit.AddDynamic(this, &ARogueExplosiveBarrel::OnComponentHit);
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst
 void ARogueExplosiveBarrel::OnComponentHit(
 	UPrimitiveComponent* HitComp,
+	// ReSharper disable once CppParameterMayBeConstPtrOrRef
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse,
 	const FHitResult& Hit) {
 	if (RadialForce && OtherActor->ActorHasTag("Projectile")) {
-		UE_LOG(LogTemp, Warning, TEXT("Hit"))
 		RadialForce->FireImpulse();
 	}
 }

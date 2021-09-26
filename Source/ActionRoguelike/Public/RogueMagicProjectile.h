@@ -19,13 +19,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, Category = "Visual")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Visual")
 	class USphereComponent* SphereComponent;
 
-	UPROPERTY(VisibleAnywhere, Category = "Visual")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Visual")
 	class UParticleSystemComponent* EffectComponent;
 
-	UPROPERTY(VisibleAnywhere, Category = "Movement")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	class UProjectileMovementComponent* MovementComponent;
 
 public:	

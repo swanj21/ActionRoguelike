@@ -19,6 +19,8 @@ class ACTIONROGUELIKE_API ARogueExplosiveBarrel : public AActor
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void PostInitializeComponents() override;
+
 	UPROPERTY(VisibleAnywhere, Category="Mesh")
 	UStaticMeshComponent* StaticMesh;
 
@@ -36,5 +38,5 @@ class ACTIONROGUELIKE_API ARogueExplosiveBarrel : public AActor
 	public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	
+
 };

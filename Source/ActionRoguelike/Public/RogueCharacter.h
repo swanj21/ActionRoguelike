@@ -40,7 +40,7 @@ protected:
 	void MoveRight(float Value);
 	
 	void PrimaryAttack();
-	void PrimaryAttack_TimeElapsed() const;
+	void PrimaryAttack_TimeElapsed();
 	void PrimaryInteract();
 	
 public:	

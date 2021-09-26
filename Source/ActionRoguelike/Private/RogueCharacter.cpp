@@ -76,11 +76,12 @@ void ARogueCharacter::PrimaryAttack() {
 	// GetWorldTimerManager().ClearTimer(TimerHandle_PrimaryAttack);
 }
 
-void ARogueCharacter::PrimaryAttack_TimeElapsed() const {
+void ARogueCharacter::PrimaryAttack_TimeElapsed() {
 	FTransform SpawnTM = FTransform(GetControlRotation(), GetMesh()->GetSocketLocation("Muzzle_01"));
 
 	FActorSpawnParameters spawnParams;
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	spawnParams.Instigator = this;
 	
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, spawnParams);
 }
