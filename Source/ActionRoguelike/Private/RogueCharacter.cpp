@@ -26,6 +26,9 @@ ARogueCharacter::ARogueCharacter() {
 	// Interaction
 	InteractionComponent = CreateDefaultSubobject<URogueInteractionComponent>(TEXT("InteractionComponent"));
 
+	// Attributes
+	AttributeComponent = CreateDefaultSubobject<URogueAttributeComponent>(TEXT("AttributeComponent"));
+
 	GetCharacterMovement()->bOrientRotationToMovement = true; // This will rotate our character no matter what we're moving towards.
 	GetCharacterMovement()->JumpZVelocity = 500.f;
 	bUseControllerRotationYaw = false;
@@ -50,7 +53,9 @@ void ARogueCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ARogueCharacter::PrimaryAttack);
+	PlayerInputComponent->BindAction("SecondaryAttack", IE_Pressed, this, &ARogueCharacter::SecondaryAttack);
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ARogueCharacter::PrimaryInteract);
+	PlayerInputComponent->BindAction("Teleport", IE_Pressed, this, &ARogueCharacter::ProjectileTeleport);
 }
 
 void ARogueCharacter::MoveForward(float Value) {
@@ -72,19 +77,38 @@ void ARogueCharacter::MoveRight(float Value) {
 }
 
 void ARogueCharacter::PrimaryAttack() {
-	PlayAnimMontage(AttackAnimation);
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ARogueCharacter::PrimaryAttack_TimeElapsed, .18f);
-	// GetWorldTimerManager().ClearTimer(TimerHandle_PrimaryAttack);
+	ProjectileAttack("Primary");
 }
 
 void ARogueCharacter::PrimaryAttack_TimeElapsed() {
-	FTransform SpawnTM = FTransform(FindAimRotation(), GetMesh()->GetSocketLocation("Muzzle_01"));
+	DoSpawnProjectile(PrimaryProjectileClass);
+}
 
-	FActorSpawnParameters spawnParams;
-	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	spawnParams.Instigator = this;
-	
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, spawnParams);
+void ARogueCharacter::SecondaryAttack() {
+	ProjectileAttack("Secondary");
+}
+
+void ARogueCharacter::SecondaryAttack_TimeElapsed() {
+	DoSpawnProjectile(SecondaryProjectileClass);
+}
+
+void ARogueCharacter::ProjectileTeleport() {
+	ProjectileAttack("Teleport");
+}
+
+void ARogueCharacter::ProjectileTeleport_TimeElapsed() {
+	DoSpawnProjectile(TeleportProjectileClass);
+}
+
+void ARogueCharacter::ProjectileAttack(FString AttackType) {
+	PlayAnimMontage(AttackAnimation);
+	if (AttackType.Equals("Primary")) {
+		GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ARogueCharacter::PrimaryAttack_TimeElapsed, .18f);
+	} else if (AttackType.Equals("Secondary")) {
+		GetWorldTimerManager().SetTimer(TimerHandle_SecondaryAttack, this, &ARogueCharacter::SecondaryAttack_TimeElapsed, .18f);
+	} else if (AttackType.Equals("Teleport")) {
+		GetWorldTimerManager().SetTimer(TimerHandle_ProjectileTeleport, this, &ARogueCharacter::ProjectileTeleport_TimeElapsed, .18f);
+	}
 }
 
 void ARogueCharacter::PrimaryInteract() {
@@ -119,4 +143,14 @@ FRotator ARogueCharacter::FindAimRotation() {
 			(TraceEnd - GetMesh()->GetSocketLocation("Muzzle_01")).Rotation();
 	}
 	return FRotator(0.f,0.f,0.f);
+}
+
+void ARogueCharacter::DoSpawnProjectile(TSubclassOf<AActor> ProjectileType) {
+	FTransform SpawnTM = FTransform(FindAimRotation(), GetMesh()->GetSocketLocation("Muzzle_01"));
+
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	spawnParams.Instigator = this;
+	
+	GetWorld()->SpawnActor<AActor>(ProjectileType, SpawnTM, spawnParams);
 }

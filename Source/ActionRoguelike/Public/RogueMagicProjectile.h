@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "RogueProjectile.h"
 #include "RogueMagicProjectile.generated.h"
 
 UCLASS()
-class ACTIONROGUELIKE_API ARogueMagicProjectile : public AActor
+class ACTIONROGUELIKE_API ARogueMagicProjectile : public ARogueProjectile
 {
 	GENERATED_BODY()
 	
@@ -19,14 +19,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Visual")
-	class USphereComponent* SphereComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Visual")
-	class UParticleSystemComponent* EffectComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
-	class UProjectileMovementComponent* MovementComponent;
+	UFUNCTION(BlueprintCallable)
+	void OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
 public:	
 	// Called every frame

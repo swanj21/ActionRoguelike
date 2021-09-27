@@ -23,6 +23,8 @@ _Complete_
 + Destroy itself after ~5 seconds(match particle system duration)
 + Made in blueprints(except for input binding and spawning)
 
+_Complete_
+
 -------------
 **Create dash/teleport projectile ability**
 + Projectile class spawned via input key
@@ -37,6 +39,9 @@ _Complete_
   + Immediately stop movement and execute same behavior(explode & teleport)
 + Must be made in c++, NOT blueprint
 Note: Consider making a shared base-class(due to the 3 projectile based abilities)
+
+_Complete_
+
 -------------
 
 ### Assignment 1

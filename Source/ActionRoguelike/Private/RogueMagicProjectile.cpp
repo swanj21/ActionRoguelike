@@ -3,28 +3,15 @@
 
 #include "RogueMagicProjectile.h"
 
+#include "RogueAttributeComponent.h"
 #include "Components/SphereComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
-#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ARogueMagicProjectile::ARogueMagicProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	SphereComponent = CreateDefaultSubobject<USphereComponent>("SphereComponent");
-	SphereComponent->SetCollisionObjectType(ECC_WorldDynamic);
-	SphereComponent->SetCollisionProfileName("Projectile");
-	RootComponent = SphereComponent;
-
-	EffectComponent = CreateDefaultSubobject<UParticleSystemComponent>("EffectComponent");
-	EffectComponent->SetupAttachment(SphereComponent);
-	
-	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComponent");
-	MovementComponent->InitialSpeed = 3000.f;
-	MovementComponent->bRotationFollowsVelocity = true;
-	MovementComponent->bInitialVelocityInLocalSpace = true;
+	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ARogueMagicProjectile::OnActorOverlap);
 }
 
 // Called when the game starts or when spawned
@@ -38,6 +25,22 @@ void ARogueMagicProjectile::BeginPlay()
 void ARogueMagicProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
+
+void ARogueMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult & SweepResult) {
+	if (OtherActor) {
+		URogueAttributeComponent* AttributeComponent = Cast<URogueAttributeComponent>(OtherActor->GetComponentByClass(URogueAttributeComponent::StaticClass()));
+		if (AttributeComponent) {
+			AttributeComponent->ApplyHealthChange(-20.f);
+
+			Destroy();
+		}
+	}
+}
+
 
