@@ -9,6 +9,10 @@
     + Re-calculate new projectile spawn Rotation by using the spawn location(hand pos) and impact location(line trace result)
     + If nothing was hit, use the trace end vector as the desired target
     + Make sure to trace against multiple object types(dynamic, static)
+
+**Complete**
+
+------------
 + Create "Blackhole" ability
   + Projectile class spawned via key input
   + RadialForceComponent but using continuous negative force to pull in actors
