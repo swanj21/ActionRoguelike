@@ -2,6 +2,7 @@
 
 #include "RogueCharacter.h"
 
+#include "DrawDebugHelpers.h"
 #include "RogueMagicProjectile.h"
 #include "RogueInteractionComponent.h"
 #include "Camera/CameraComponent.h"
@@ -77,7 +78,7 @@ void ARogueCharacter::PrimaryAttack() {
 }
 
 void ARogueCharacter::PrimaryAttack_TimeElapsed() {
-	FTransform SpawnTM = FTransform(GetControlRotation(), GetMesh()->GetSocketLocation("Muzzle_01"));
+	FTransform SpawnTM = FTransform(FindAimRotation(), GetMesh()->GetSocketLocation("Muzzle_01"));
 
 	FActorSpawnParameters spawnParams;
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -86,7 +87,36 @@ void ARogueCharacter::PrimaryAttack_TimeElapsed() {
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, spawnParams);
 }
 
-
 void ARogueCharacter::PrimaryInteract() {
 	InteractionComponent->PrimaryInteract();
+}
+
+FRotator ARogueCharacter::FindAimRotation() {
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (ensureAlways(PlayerController)) {
+		FVector CrosshairWorldLocation, CrosshairWorldDirection;
+
+		// Trace start
+		int32 ViewportX, ViewportY;
+		PlayerController->GetViewportSize(ViewportX, ViewportY);
+		PlayerController->DeprojectScreenPositionToWorld(ViewportX/2, ViewportY/2, CrosshairWorldLocation, CrosshairWorldDirection);
+		
+		// Trace end
+		const FVector TraceEnd = CameraComponent->GetForwardVector() * AttackDistance + CrosshairWorldLocation;
+		
+		// Objects
+		FCollisionObjectQueryParams objectQueryParams;
+		objectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+		objectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		
+		// Perform trace
+		FHitResult hit;
+
+		GetWorld()->LineTraceSingleByObjectType(hit, CrosshairWorldLocation, TraceEnd, objectQueryParams);
+		
+		return hit.bBlockingHit ?
+			(hit.Location - GetMesh()->GetSocketLocation("Muzzle_01")).Rotation() :
+			(TraceEnd - GetMesh()->GetSocketLocation("Muzzle_01")).Rotation();
+	}
+	return FRotator(0.f,0.f,0.f);
 }

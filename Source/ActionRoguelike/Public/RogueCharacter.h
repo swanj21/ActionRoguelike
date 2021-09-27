@@ -30,6 +30,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="Attack")
 	class UAnimMontage* AttackAnimation;
+	
+	UPROPERTY(EditAnywhere, Category="Attack")
+	float AttackDistance = 5000.f;
 
 	UPROPERTY(VisibleAnywhere, Category="Interaction")
 	class URogueInteractionComponent* InteractionComponent;
@@ -42,6 +45,9 @@ protected:
 	void PrimaryAttack();
 	void PrimaryAttack_TimeElapsed();
 	void PrimaryInteract();
+
+	UFUNCTION(BlueprintCallable, Category="Aiming")
+	FRotator FindAimRotation();
 	
 public:	
 	// Called every frame

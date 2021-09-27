@@ -22,7 +22,7 @@ ARogueMagicProjectile::ARogueMagicProjectile()
 	EffectComponent->SetupAttachment(SphereComponent);
 	
 	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComponent");
-	MovementComponent->InitialSpeed = 1000.f;
+	MovementComponent->InitialSpeed = 3000.f;
 	MovementComponent->bRotationFollowsVelocity = true;
 	MovementComponent->bInitialVelocityInLocalSpace = true;
 }
