@@ -2,15 +2,13 @@
 
 ## Assignments
 ### Assignment 2
-<b>a</b>
 + Problem statement: Projectiles don't hit where the player expects(under the crosshair)
   + Projectile is spawned in player hand which can be left or right based on orientation
   + Camera perspective is deceiving, aiming at something really close will miss target due to camera alignment with character
-+ Solution: Line trace from Camera to World and find desired impact location
-  + Re-calculate new projectile spawn Rotation by using the spawn location(hand pos) and impact location(line trace result)
-  + If nothing was hit, use the trace end vector as the desired target
-  + Make sure to trace against multiple object types(dynamic, static)
-<b>b</b>
+  + Solution: Line trace from Camera to World and find desired impact location
+    + Re-calculate new projectile spawn Rotation by using the spawn location(hand pos) and impact location(line trace result)
+    + If nothing was hit, use the trace end vector as the desired target
+    + Make sure to trace against multiple object types(dynamic, static)
 + Create "Blackhole" ability
   + Projectile class spawned via key input
   + RadialForceComponent but using continuous negative force to pull in actors
@@ -20,7 +18,6 @@
   + Particle component for the black hole VFX
   + Destroy itself after ~5 seconds(match particle system duration)
   + Made in blueprints(except for input binding and spawning)
-<b>c</b>
 + Create dash/teleport projectile ability
   + Projectile class spawned via input key
   + ParticleComponent to show projectile
@@ -34,6 +31,7 @@
     + Immediately stop movement and execute same behavior(explode & teleport)
   + Must be made in c++, NOT blueprint
 Note: Consider making a shared base-class(due to the 3 projectile based abilities)
+
 ### Assignment 1
 + Setup project in Github - <b>COMPLETE</b>
 + Character w/ movement & look input - <b>COMPLETE</b>
