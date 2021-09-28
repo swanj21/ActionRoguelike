@@ -4,6 +4,7 @@
 #include "RogueExplosiveBarrel.h"
 
 #include "DrawDebugHelpers.h"
+#include "RogueAttributeComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 
 // Sets default values
@@ -50,7 +51,5 @@ void ARogueExplosiveBarrel::OnComponentHit(
 	const FHitResult& Hit) {
 	if (RadialForce && OtherActor->ActorHasTag("Projectile")) {
 		RadialForce->FireImpulse();
-		const FString combinedString = FString::Printf(TEXT("Hit at location: %s"), *Hit.ImpactPoint.ToString());
-		DrawDebugString(GetWorld(), Hit.ImpactPoint, combinedString, nullptr, FColor::Red, 3.f, true);
 	}
 }
