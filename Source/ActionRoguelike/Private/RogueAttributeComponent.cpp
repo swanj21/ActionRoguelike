@@ -12,3 +12,8 @@ bool URogueAttributeComponent::ApplyHealthChange(float Delta) {
 	OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
 	return true;
 }
+
+bool URogueAttributeComponent::IsAlive() const {
+	return Health > 0.f;
+}
+

@@ -27,4 +27,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category="Health")
 	FOnHealthChanged OnHealthChanged;
+
+	UFUNCTION(BlueprintCallable, Category="Health")
+	bool IsAlive() const;
 };

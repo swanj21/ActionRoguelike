@@ -34,6 +34,11 @@ ARogueCharacter::ARogueCharacter() {
 	bUseControllerRotationYaw = false;
 }
 
+void ARogueCharacter::PostInitializeComponents() {
+	Super::PostInitializeComponents();
+	AttributeComponent->OnHealthChanged.AddDynamic(this, &ARogueCharacter::OnHealthChanged);
+}
+
 // Called when the game starts or when spawned
 void ARogueCharacter::BeginPlay() { Super::BeginPlay(); }
 
@@ -153,4 +158,11 @@ void ARogueCharacter::DoSpawnProjectile(TSubclassOf<AActor> ProjectileType) {
 	spawnParams.Instigator = this;
 	
 	GetWorld()->SpawnActor<AActor>(ProjectileType, SpawnTM, spawnParams);
+}
+
+void ARogueCharacter::OnHealthChanged(AActor* InstigatorActor, class URogueAttributeComponent* OwningComponent, float NewHealth, float Delta) {
+	if (NewHealth <= 0.f && Delta <= 0.f) {
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		DisableInput(PlayerController);
+	}
 }

@@ -47,6 +47,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category="Interaction")
 	class URogueInteractionComponent* InteractionComponent;
 
+	UFUNCTION(BlueprintCallable, Category="Health")
+	void OnHealthChanged(AActor* InstigatorActor, class URogueAttributeComponent* OwningComponent, float NewHealth, float Delta);
+
 	FTimerHandle TimerHandle_PrimaryAttack;
 	FTimerHandle TimerHandle_SecondaryAttack;
 	FTimerHandle TimerHandle_ProjectileTeleport;
@@ -66,6 +69,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category="Aiming")
 	FRotator FindAimRotation();
+
+	virtual void PostInitializeComponents() override;
 	
 public:	
 	// Called every frame
