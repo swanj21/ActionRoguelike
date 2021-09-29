@@ -1,6 +1,50 @@
 # ActionRoguelike
 
 ## Assignments
+### Assignment 3
+**Update Magic Projectile**  
+_Audio and visual polish_  
++ Add audio playback
+  + Add a looped 'flight' sound (UAudioComponent)
+  + Add an impact sound (UGameplayStatics::PlaySoundAtLocation)
++ Any logic in BP, move to C++
+----
+**Player Character**  
+_React to damage received_
++ Add 'hit flash' material nodes to existing player material (M_CharacterSimple using 'Material Function')
++ Trigger material via OnHealthChanged when 'Damaged' only
++ Must have tweakable 'Color' and 'Speed' parameters(can have others as well)
+
+----
+**AttributeComponent**  
+_HealthMax attribute_
++ Add HealthMax attribute
++ Replace 'ClassDefaults::Health' node in Health Widget with new HealthMax attribute
++ Clamp Health b/w 0 and HealthMax via ApplyHealthChanges (See FMath)
+
+----
+**UI**  
+_Animation_
++ Add 'Damage amount' to the new damage widget (Expose on spawn to set value)
++ Add animation to widget when added to viewport (color, scale, etc...) (open ended)
+
+----
+**Health Potion power up**  
+_Healing pickup_
++ React to the Interact() function on the GameplayInterface
++ Once triggered, de-activate for 10s(invisible, no interactions)
+  + Reactivates once time elapsed(show mesh, can be triggered)
++ Ignores interacting pawn if already at max health
+
+----
+**Magic projectile**  
+_Enhancing the projectile_
++ Play 'attached' particle effect in player's hand when attacking
+  + UGameplayStatics::SpawnEmitterAttached, P_Gideon_Primary_MuzzleFlash
++ World camera shake on projectile impact
+  + UGameplayStatics::PlayWorldCameraShake - Create a new shake asset
+
+----
 ### Assignment 2
 **Projectiles don't hit where the player expects(under the crosshair)**
 + Projectile is spawned in player hand which can be left or right based on orientation
