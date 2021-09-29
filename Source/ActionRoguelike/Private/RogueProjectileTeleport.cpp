@@ -36,6 +36,7 @@ void ARogueProjectileTeleport::Explode_TimeElapsed() {
 void ARogueProjectileTeleport::DoProjectileExplosion() {
 	MovementComponent->StopMovementImmediately();
 	DestructionEffectComponent->Activate();
+	SetActorEnableCollision(false);
 	
 	GetWorldTimerManager().SetTimer(TimerHandle_Teleport, this, &ARogueProjectileTeleport::Teleport_TimeElapsed, .2f);
 }
@@ -47,7 +48,7 @@ void ARogueProjectileTeleport::Teleport_TimeElapsed() {
 }
 
 void ARogueProjectileTeleport::DoTeleportPlayer(FVector Location) {
-	if (GetInstigator()->TeleportTo(Location, FRotator::ZeroRotator)) {
+	if (GetInstigator()->TeleportTo(Location, GetInstigator()->GetActorRotation())) {
 		UE_LOG(LogTemp, Warning, TEXT("Teleported player"))
 	} else {
 		UE_LOG(LogTemp, Warning, TEXT("Could not teleport player"))

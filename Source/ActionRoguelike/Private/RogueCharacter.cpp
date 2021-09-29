@@ -139,7 +139,7 @@ FRotator ARogueCharacter::FindAimRotation() {
 		GetWorld()->LineTraceSingleByObjectType(hit, CrosshairWorldLocation, TraceEnd, objectQueryParams);
 		
 		return hit.bBlockingHit ?
-			(hit.Location - GetMesh()->GetSocketLocation("Muzzle_01")).Rotation() :
+			(hit.ImpactPoint - GetMesh()->GetSocketLocation("Muzzle_01")).Rotation() :
 			(TraceEnd - GetMesh()->GetSocketLocation("Muzzle_01")).Rotation();
 	}
 	return FRotator(0.f,0.f,0.f);
