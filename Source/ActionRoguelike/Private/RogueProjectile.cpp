@@ -3,6 +3,7 @@
 
 #include "RogueProjectile.h"
 
+#include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -25,6 +26,9 @@ ARogueProjectile::ARogueProjectile()
 	MovementComponent->InitialSpeed = 3000.f;
 	MovementComponent->bRotationFollowsVelocity = true;
 	MovementComponent->bInitialVelocityInLocalSpace = true;
+
+	FlightAudioComponent = CreateDefaultSubobject<UAudioComponent>("FlightAudioComponent");
+	FlightAudioComponent->SetupAttachment(SphereComponent);
 }
 
 // Called when the game starts or when spawned

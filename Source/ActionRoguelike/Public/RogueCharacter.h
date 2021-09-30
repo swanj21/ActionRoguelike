@@ -37,6 +37,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="Attack")
 	class UAnimMontage* AttackAnimation;
+
+	UPROPERTY(EditAnywhere, Category="Attack")
+	class UParticleSystem* MuzzleFlash;
 	
 	UPROPERTY(EditAnywhere, Category="Attack")
 	float AttackDistance = 5000.f;

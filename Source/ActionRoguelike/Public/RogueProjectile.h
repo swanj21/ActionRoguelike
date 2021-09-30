@@ -24,6 +24,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	class UProjectileMovementComponent* MovementComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Audio")
+	class UAudioComponent* FlightAudioComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio")
+	class USoundCue* ImpactSound;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -8,7 +8,9 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Particles/ParticleSystem.h"
 
 // Sets default values
 ARogueCharacter::ARogueCharacter() {
@@ -28,6 +30,9 @@ ARogueCharacter::ARogueCharacter() {
 
 	// Attributes
 	AttributeComponent = CreateDefaultSubobject<URogueAttributeComponent>(TEXT("AttributeComponent"));
+
+	// Particle system
+	MuzzleFlash = CreateDefaultSubobject<UParticleSystem>("Particle System");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true; // This will rotate our character no matter what we're moving towards.
 	GetCharacterMovement()->JumpZVelocity = 500.f;
@@ -152,7 +157,11 @@ FRotator ARogueCharacter::FindAimRotation() {
 
 void ARogueCharacter::DoSpawnProjectile(TSubclassOf<AActor> ProjectileType) {
 	FTransform SpawnTM = FTransform(FindAimRotation(), GetMesh()->GetSocketLocation("Muzzle_01"));
-
+	if (MuzzleFlash) {
+		UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GetMesh(), "Muzzle_01");
+	} else {
+		UE_LOG(LogTemp, Error, TEXT("Could not spawn MuzzleFlash emitter, value is null"))
+	}
 	FActorSpawnParameters spawnParams;
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	spawnParams.Instigator = this;

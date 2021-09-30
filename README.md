@@ -8,6 +8,12 @@ _Audio and visual polish_
   + Add a looped 'flight' sound (UAudioComponent)
   + Add an impact sound (UGameplayStatics::PlaySoundAtLocation)
 + Any logic in BP, move to C++
+
+_COMPLETE_
+
+**Bug to resolve: Impact sound does not play when projectile is destroyed outside of the 
+OnActorOverlap() function.**
+
 ----
 **Player Character**  
 _React to damage received_
