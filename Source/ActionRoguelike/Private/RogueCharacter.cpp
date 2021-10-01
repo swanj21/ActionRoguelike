@@ -3,13 +3,11 @@
 #include "RogueCharacter.h"
 
 #include "DrawDebugHelpers.h"
-#include "RogueMagicProjectile.h"
 #include "RogueInteractionComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Particles/ParticleSystem.h"
 
 // Sets default values
@@ -170,6 +168,10 @@ void ARogueCharacter::DoSpawnProjectile(TSubclassOf<AActor> ProjectileType) {
 }
 
 void ARogueCharacter::OnHealthChanged(AActor* InstigatorActor, class URogueAttributeComponent* OwningComponent, float NewHealth, float Delta) {
+	if (Delta < 0.f) { // Took damage
+		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->GetTimeSeconds());
+	}
+	
 	if (NewHealth <= 0.f && Delta <= 0.f) {
 		APlayerController* PlayerController = Cast<APlayerController>(GetController());
 		DisableInput(PlayerController);

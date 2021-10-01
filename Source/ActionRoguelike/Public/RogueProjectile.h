@@ -15,6 +15,8 @@ public:
 	// Sets default values for this actor's properties
 	ARogueProjectile();
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Visual")
 	class USphereComponent* SphereComponent;
 
@@ -29,6 +31,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio")
 	class USoundCue* ImpactSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CameraShake")
+	TSubclassOf<UMatineeCameraShake> ImpactCameraShake;
+
+	UPROPERTY(EditAnywhere, Category="CameraShake")
+	float ImpactCamShakeInnerRadius;
+
+	UPROPERTY(EditAnywhere, Category="CameraShake")
+	float ImpactCamShakeOuterRadius;	
 
 protected:
 	// Called when the game starts or when spawned

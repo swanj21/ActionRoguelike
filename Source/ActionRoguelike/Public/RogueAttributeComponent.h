@@ -17,12 +17,15 @@ public:
 	URogueAttributeComponent();
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health")
 	float Health = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Health")
+	float MaxHealth = 100;
 
 	// HealthMax, Stamina, Strength, CriticalHitChance
 public:
-	UFUNCTION(BlueprintCallable, Category="Attributes")
+	UFUNCTION(BlueprintCallable, Category="Health")
 	bool ApplyHealthChange(float Delta);
 
 	UPROPERTY(BlueprintAssignable, Category="Health")

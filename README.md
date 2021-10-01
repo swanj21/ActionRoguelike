@@ -14,12 +14,16 @@ _COMPLETE_
 **Bug to resolve: Impact sound does not play when projectile is destroyed outside of the 
 OnActorOverlap() function.**
 
+_BUG COMPLETE_
+
 ----
 **Player Character**  
 _React to damage received_
 + Add 'hit flash' material nodes to existing player material (M_CharacterSimple using 'Material Function')
 + Trigger material via OnHealthChanged when 'Damaged' only
 + Must have tweakable 'Color' and 'Speed' parameters(can have others as well)
+
+_COMPLETE_
 
 ----
 **AttributeComponent**  
@@ -28,11 +32,15 @@ _HealthMax attribute_
 + Replace 'ClassDefaults::Health' node in Health Widget with new HealthMax attribute
 + Clamp Health b/w 0 and HealthMax via ApplyHealthChanges (See FMath)
 
+_COMPLETE_
+
 ----
 **UI**  
 _Animation_
 + Add 'Damage amount' to the new damage widget (Expose on spawn to set value)
 + Add animation to widget when added to viewport (color, scale, etc...) (open ended)
+
+_COMPLETE_
 
 ----
 **Health Potion power up**  
@@ -42,6 +50,8 @@ _Healing pickup_
   + Reactivates once time elapsed(show mesh, can be triggered)
 + Ignores interacting pawn if already at max health
 
+_COMPLETE_
+
 ----
 **Magic projectile**  
 _Enhancing the projectile_
@@ -49,6 +59,8 @@ _Enhancing the projectile_
   + UGameplayStatics::SpawnEmitterAttached, P_Gideon_Primary_MuzzleFlash
 + World camera shake on projectile impact
   + UGameplayStatics::PlayWorldCameraShake - Create a new shake asset
+
+_COMPLETE_
 
 ----
 ### Assignment 2

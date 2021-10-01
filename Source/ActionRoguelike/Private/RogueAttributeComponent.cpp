@@ -7,7 +7,12 @@
 URogueAttributeComponent::URogueAttributeComponent() {}
 
 bool URogueAttributeComponent::ApplyHealthChange(float Delta) {
+	if (Health == MaxHealth && Delta > 0) {
+		return false;
+	}
 	Health += Delta;
+
+	Health = FMath::Clamp(Health, 0.f, MaxHealth);
 
 	OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
 	return true;

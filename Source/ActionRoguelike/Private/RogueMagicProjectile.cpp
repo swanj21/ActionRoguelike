@@ -39,18 +39,13 @@ void ARogueMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedCompon
 	const FHitResult & SweepResult) {
 	if (OtherActor && OtherActor != GetInstigator()) {
 		FlightAudioComponent->FadeOut(.2f, 0.f);
-		if (ImpactSound) {
-			UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), GetActorRotation());
-		} else {
-			UE_LOG(LogTemp, Error, TEXT("Could not play sound on projectile impact, ImpactSound is null"))
-		}
 		
 		URogueAttributeComponent* AttributeComponent = Cast<URogueAttributeComponent>(OtherActor->GetComponentByClass(URogueAttributeComponent::StaticClass()));
 		if (AttributeComponent) {
 			AttributeComponent->ApplyHealthChange(-1 * Damage);
-
-			Destroy();
 		}
+		
+		Destroy();
 	}
 }
 
