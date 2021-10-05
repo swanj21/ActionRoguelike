@@ -1,6 +1,8 @@
 # ActionRoguelike
 
 ## Assignments
+
+----
 ### Assignment 4
 **New AI Behavior**  
 _Flee and heal when low health_
@@ -11,6 +13,9 @@ _Flee and heal when low health_
   + Can only run once every 60(determine proper number) seconds
   + Fight as normal after healed
 
+_COMPLETE_
+
+----
 ### Assignment 3
 **Update Magic Projectile**  
 _Audio and visual polish_  

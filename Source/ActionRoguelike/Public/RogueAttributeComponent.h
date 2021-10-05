@@ -23,7 +23,7 @@ protected:
 	float MaxHealth = 100;
 
 	/**
-	* Value for something to be considered 'low health'
+	* Value for an actor to be considered 'low health'
 	*/
 	UPROPERTY(EditAnywhere, Category="Health")
 	float LowHealthThreshold;
@@ -40,6 +40,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Health")
 	bool IsLowHealth() const;
+
+	UFUNCTION(BlueprintCallable, Category="Health")
+	float GetHealth() { return Health; }
+
+	UFUNCTION(BlueprintCallable, Category="Health")
+	float GetMaxHealth() { return MaxHealth; }
 
 	// ------
 	// STATIC
