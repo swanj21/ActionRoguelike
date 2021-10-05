@@ -13,10 +13,15 @@ UCLASS()
 class ACTIONROGUELIKE_API URogueBTTask_RangedAttack : public UBTTaskNode
 {
 	GENERATED_BODY()
-
+public:
+	URogueBTTask_RangedAttack();
+	
 	protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 	UPROPERTY(EditAnywhere, Category = "AI")
 	TSubclassOf<AActor> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category="AI")
+	float MaxBulletSpread;
 };

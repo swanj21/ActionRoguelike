@@ -18,20 +18,6 @@ ARogueItemChest::ARogueItemChest()
 	TargetPitch = 100;
 }
 
-// Called when the game starts or when spawned
-void ARogueItemChest::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void ARogueItemChest::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void ARogueItemChest::Interact_Implementation(APawn* InstigatorPawn) {
 	LidMesh->SetRelativeRotation(FRotator(TargetPitch, 0.f, 0.f));
 }

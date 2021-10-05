@@ -13,7 +13,6 @@ class ACTIONROGUELIKE_API URogueAttributeComponent : public UActorComponent {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	URogueAttributeComponent();
 
 protected:
@@ -23,14 +22,32 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Health")
 	float MaxHealth = 100;
 
-	// HealthMax, Stamina, Strength, CriticalHitChance
+	/**
+	* Value for something to be considered 'low health'
+	*/
+	UPROPERTY(EditAnywhere, Category="Health")
+	float LowHealthThreshold;
+	
 public:
 	UFUNCTION(BlueprintCallable, Category="Health")
-	bool ApplyHealthChange(float Delta);
+	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
 
 	UPROPERTY(BlueprintAssignable, Category="Health")
 	FOnHealthChanged OnHealthChanged;
 
 	UFUNCTION(BlueprintCallable, Category="Health")
 	bool IsAlive() const;
+
+	UFUNCTION(BlueprintCallable, Category="Health")
+	bool IsLowHealth() const;
+
+	// ------
+	// STATIC
+	// ------
+	public:
+	UFUNCTION(BlueprintCallable, Category="Attributes")
+	static URogueAttributeComponent* GetAttributes(AActor* FromActor);
+
+	UFUNCTION(BlueprintCallable, Category="Health", meta = (DisplayName = "IsAlive"))
+	static bool IsActorAlive(AActor* Actor);
 };

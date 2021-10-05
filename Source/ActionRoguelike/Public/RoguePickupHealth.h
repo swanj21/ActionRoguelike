@@ -19,4 +19,10 @@ class ACTIONROGUELIKE_API ARoguePickupHealth : public ARoguePickup
 	protected:
 	void DisableItem() override;
 	void EnableItem() override;
+
+	UPROPERTY(EditAnywhere, Category="Timer")
+	float RespawnTimer = 10.f;
+
+	UPROPERTY(EditAnywhere, Category="Healing")
+	float HealValue = 20.f;
 };

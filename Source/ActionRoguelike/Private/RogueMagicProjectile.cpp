@@ -42,7 +42,7 @@ void ARogueMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedCompon
 		
 		URogueAttributeComponent* AttributeComponent = Cast<URogueAttributeComponent>(OtherActor->GetComponentByClass(URogueAttributeComponent::StaticClass()));
 		if (AttributeComponent) {
-			AttributeComponent->ApplyHealthChange(-1 * Damage);
+			AttributeComponent->ApplyHealthChange(GetInstigator(), -1 * Damage);
 		}
 		
 		Destroy();

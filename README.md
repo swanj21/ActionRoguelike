@@ -1,6 +1,16 @@
 # ActionRoguelike
 
 ## Assignments
+### Assignment 4
+**New AI Behavior**  
+_Flee and heal when low health_
++ Create new behavior, flee/hide when low health(determine some threshold) and heal
+  + Service should check periodically if low health
+  + EQS should find hidden position away from player & close to AI
+  + New BT Task to heal back to max hitpoints
+  + Can only run once every 60(determine proper number) seconds
+  + Fight as normal after healed
+
 ### Assignment 3
 **Update Magic Projectile**  
 _Audio and visual polish_  

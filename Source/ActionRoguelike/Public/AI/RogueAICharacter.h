@@ -18,9 +18,22 @@ public:
 protected:
 	virtual void PostInitializeComponents() override;
 
-	UPROPERTY(VisibleAnywhere, Category="Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	class UPawnSensingComponent* PawnSensingComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+	class URogueAttributeComponent* AttributeComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Effects")
+	FName TimeToHitParamName;
 
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
+
+	UFUNCTION(BlueprintCallable, Category="Health")
+	void OnHealthChanged(AActor* InstigatorActor, class URogueAttributeComponent* OwningComponent, float NewHealth, float Delta);
+
+	UFUNCTION(BlueprintCallable, Category="AI")
+	void SetTargetActor(AActor* NewTarget);
+
 };

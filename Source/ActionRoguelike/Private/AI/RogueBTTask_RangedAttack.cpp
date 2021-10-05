@@ -4,8 +4,13 @@
 #include "AI/RogueBTTask_RangedAttack.h"
 
 #include "AIController.h"
+#include "RogueAttributeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/Character.h"
+
+URogueBTTask_RangedAttack::URogueBTTask_RangedAttack() {
+	MaxBulletSpread = 2.f;
+}
 
 EBTNodeResult::Type URogueBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
 	AAIController* AIController = OwnerComp.GetAIOwner();
@@ -19,12 +24,15 @@ EBTNodeResult::Type URogueBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponen
 		FVector MuzzleLocation = AICharacter->GetMesh()->GetSocketLocation("Muzzle_01");
 
 		AActor* TargetActor = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject("TargetActor"));
-		if (TargetActor == nullptr) {
+		if (TargetActor == nullptr || !URogueAttributeComponent::IsActorAlive(TargetActor)) {
 			return EBTNodeResult::Failed;
 		}
 
 		FVector Direction = TargetActor->GetActorLocation() - MuzzleLocation;
 		FRotator MuzzleRotation = Direction.Rotation();
+
+		MuzzleRotation.Pitch += FMath::RandRange(0.f, MaxBulletSpread);
+		MuzzleRotation.Yaw += FMath::RandRange(-MaxBulletSpread, MaxBulletSpread);
 
 		FActorSpawnParameters Params;
 		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;

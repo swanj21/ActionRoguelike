@@ -38,8 +38,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Attack")
 	class UAnimMontage* AttackAnimation;
 
-	UPROPERTY(EditAnywhere, Category="Attack")
+	UPROPERTY(EditAnywhere, Category="Effects")
 	class UParticleSystem* MuzzleFlash;
+
+	UPROPERTY(VisibleAnywhere, Category="Effects")
+	FName HandSocketName;
+
+	UPROPERTY(VisibleAnywhere, Category="Effects")
+	FName TimeToHitParamName;
 	
 	UPROPERTY(EditAnywhere, Category="Attack")
 	float AttackDistance = 5000.f;

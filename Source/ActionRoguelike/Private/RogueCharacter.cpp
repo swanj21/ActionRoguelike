@@ -35,6 +35,9 @@ ARogueCharacter::ARogueCharacter() {
 	GetCharacterMovement()->bOrientRotationToMovement = true; // This will rotate our character no matter what we're moving towards.
 	GetCharacterMovement()->JumpZVelocity = 500.f;
 	bUseControllerRotationYaw = false;
+
+	HandSocketName = "Muzzle_01";
+	TimeToHitParamName = "TimeToHit";
 }
 
 void ARogueCharacter::PostInitializeComponents() {
@@ -147,16 +150,16 @@ FRotator ARogueCharacter::FindAimRotation() {
 		GetWorld()->LineTraceSingleByObjectType(hit, CrosshairWorldLocation, TraceEnd, objectQueryParams);
 		
 		return hit.bBlockingHit ?
-			(hit.ImpactPoint - GetMesh()->GetSocketLocation("Muzzle_01")).Rotation() :
-			(TraceEnd - GetMesh()->GetSocketLocation("Muzzle_01")).Rotation();
+			(hit.ImpactPoint - GetMesh()->GetSocketLocation(HandSocketName)).Rotation() :
+			(TraceEnd - GetMesh()->GetSocketLocation(HandSocketName)).Rotation();
 	}
 	return FRotator(0.f,0.f,0.f);
 }
 
 void ARogueCharacter::DoSpawnProjectile(TSubclassOf<AActor> ProjectileType) {
-	FTransform SpawnTM = FTransform(FindAimRotation(), GetMesh()->GetSocketLocation("Muzzle_01"));
+	FTransform SpawnTM = FTransform(FindAimRotation(), GetMesh()->GetSocketLocation(HandSocketName));
 	if (MuzzleFlash) {
-		UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GetMesh(), "Muzzle_01");
+		UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GetMesh(), HandSocketName);
 	} else {
 		UE_LOG(LogTemp, Error, TEXT("Could not spawn MuzzleFlash emitter, value is null"))
 	}
@@ -169,7 +172,7 @@ void ARogueCharacter::DoSpawnProjectile(TSubclassOf<AActor> ProjectileType) {
 
 void ARogueCharacter::OnHealthChanged(AActor* InstigatorActor, class URogueAttributeComponent* OwningComponent, float NewHealth, float Delta) {
 	if (Delta < 0.f) { // Took damage
-		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->GetTimeSeconds());
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->GetTimeSeconds());
 	}
 	
 	if (NewHealth <= 0.f && Delta <= 0.f) {
