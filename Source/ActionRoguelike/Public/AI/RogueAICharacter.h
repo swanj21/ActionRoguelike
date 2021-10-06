@@ -27,6 +27,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Effects")
 	FName TimeToHitParamName;
 
+	UPROPERTY(EditDefaultsOnly, Category="UI")
+	TSubclassOf<class UUserWidget> HealthBarWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly, Category="UI")
+	class URWorldUserWidget* ActiveHealthBar;
+
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
 

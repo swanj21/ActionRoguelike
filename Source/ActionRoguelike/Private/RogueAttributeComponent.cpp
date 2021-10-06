@@ -7,6 +7,10 @@
 URogueAttributeComponent::URogueAttributeComponent() {}
 
 bool URogueAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta) {
+	if (!GetOwner()->CanBeDamaged()) {
+		return false;
+	}
+	
 	if (Health == MaxHealth && Delta > 0) {
 		return false;
 	}
@@ -24,6 +28,10 @@ bool URogueAttributeComponent::IsAlive() const {
 
 bool URogueAttributeComponent::IsLowHealth() const {
 	return Health <= LowHealthThreshold;
+}
+
+bool URogueAttributeComponent::Kill(AActor* InstigatorActor) {
+	return ApplyHealthChange(InstigatorActor, -GetMaxHealth());
 }
 
 // ----------------

@@ -50,6 +50,7 @@ void ARogueExplosiveBarrel::OnComponentHit(
 	FVector NormalImpulse,
 	const FHitResult& Hit) {
 	if (RadialForce && OtherActor->ActorHasTag("Projectile")) {
+		UE_LOG(LogTemp, Warning, TEXT("Barrel hit by projectile"))
 		RadialForce->FireImpulse();
 	}
 }

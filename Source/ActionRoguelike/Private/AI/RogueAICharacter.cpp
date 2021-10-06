@@ -7,8 +7,10 @@
 #include "BrainComponent.h"
 #include "DrawDebugHelpers.h"
 #include "RogueAttributeComponent.h"
+#include "RWorldUserWidget.h"
 #include "AI/RogueAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Blueprint/UserWidget.h"
 #include "Perception/PawnSensingComponent.h"
 
 // Sets default values
@@ -43,6 +45,14 @@ void ARogueAICharacter::OnHealthChanged(AActor* InstigatorActor, URogueAttribute
 			SetTargetActor(InstigatorActor);
 		}
 
+		if (!ActiveHealthBar) {
+			ActiveHealthBar = CreateWidget<URWorldUserWidget>(GetWorld(), HealthBarWidgetClass);
+			if (ActiveHealthBar) {
+				ActiveHealthBar->AttachedActor = this;
+				ActiveHealthBar->AddToViewport();
+			}
+		}
+		
 		// Hit flash
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->GetTimeSeconds());
 		

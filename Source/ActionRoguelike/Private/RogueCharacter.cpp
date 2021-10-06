@@ -180,3 +180,7 @@ void ARogueCharacter::OnHealthChanged(AActor* InstigatorActor, class URogueAttri
 		DisableInput(PlayerController);
 	}
 }
+
+void ARogueCharacter::HealSelf(float Amount/* = 100 */) {
+	AttributeComponent->ApplyHealthChange(this, Amount);
+}

@@ -69,3 +69,14 @@ void ARogueGameModeBase::OnQueryComplete(UEnvQueryInstanceBlueprintWrapper* Quer
 		DrawDebugSphere(GetWorld(), Locations[0], 30.f, 8, FColor::Blue, true, 5.f,0, 3.f);
 	}
 }
+
+void ARogueGameModeBase::KillAllBots() {
+	for (TActorIterator<ARogueAICharacter> It(GetWorld()); It; ++It) {
+		ARogueAICharacter* Bot = *It;
+
+		URogueAttributeComponent* AttributeComponent = URogueAttributeComponent::GetAttributes(Bot);
+		if (ensure(AttributeComponent) && AttributeComponent->IsAlive()) {
+			AttributeComponent->Kill(Bot); // TODO: Maybe pass in player for kill credit?
+		}
+	}
+}

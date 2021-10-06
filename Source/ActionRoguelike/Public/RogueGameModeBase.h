@@ -40,4 +40,7 @@ class ACTIONROGUELIKE_API ARogueGameModeBase : public AGameModeBase
 
 	UFUNCTION()
 	void OnQueryComplete(class UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+
+	UFUNCTION(Exec)
+	void KillAllBots();
 };
