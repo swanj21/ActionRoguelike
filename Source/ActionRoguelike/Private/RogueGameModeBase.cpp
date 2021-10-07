@@ -6,8 +6,11 @@
 #include "DrawDebugHelpers.h"
 #include "EngineUtils.h"
 #include "RogueAttributeComponent.h"
+#include "RogueCharacter.h"
 #include "AI/RogueAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
+
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("rogue.SpawnBots"), true, TEXT("Enable spawning of bots via a timer"), ECVF_Cheat);
 
 ARogueGameModeBase::ARogueGameModeBase() {
 	SpawnTimeInterval = 2.f;
@@ -26,6 +29,11 @@ void ARogueGameModeBase::SpawnBotTimerElapsed() {
 		this, 
 		EEnvQueryRunMode::RandomBest5Pct,
 		nullptr);
+
+	if (!CVarSpawnBots.GetValueOnGameThread()) {
+		UE_LOG(LogTemp, Warning, TEXT("Bot spawning disabled via cvar 'CVarSpawnBots'."))
+		return;
+	}
 
 	int32 CurAliveBots = 0;
 	for (TActorIterator<ARogueAICharacter> It(GetWorld()); It; ++It) {
@@ -70,6 +78,14 @@ void ARogueGameModeBase::OnQueryComplete(UEnvQueryInstanceBlueprintWrapper* Quer
 	}
 }
 
+void ARogueGameModeBase::RespawnPlayerTimeElapsed(AController* Controller) {
+	if (ensure(Controller)) {
+		Controller->UnPossess();
+		
+		RestartPlayer(Controller);
+	}
+}
+
 void ARogueGameModeBase::KillAllBots() {
 	for (TActorIterator<ARogueAICharacter> It(GetWorld()); It; ++It) {
 		ARogueAICharacter* Bot = *It;
@@ -79,4 +95,17 @@ void ARogueGameModeBase::KillAllBots() {
 			AttributeComponent->Kill(Bot); // TODO: Maybe pass in player for kill credit?
 		}
 	}
+}
+
+void ARogueGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer) {
+	ARogueCharacter* Player = Cast<ARogueCharacter>(VictimActor);
+	if (Player) {
+		FTimerHandle TimerHandle_RespawnDelay;
+		FTimerDelegate Delegate;
+		Delegate.BindUFunction(this, "RespawnPlayerTimeElapsed", Player->GetController());
+		
+		float RespawnDelay = 2.f;
+		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
+	}
+	UE_LOG(LogTemp, Warning, TEXT("OnActorKilled: Victim is %s and Killer is %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer))
 }

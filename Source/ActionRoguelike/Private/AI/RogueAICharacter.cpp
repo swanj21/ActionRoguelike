@@ -11,6 +11,8 @@
 #include "AI/RogueAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/PawnSensingComponent.h"
 
 // Sets default values
@@ -21,6 +23,9 @@ ARogueAICharacter::ARogueAICharacter()
 	AttributeComponent = CreateDefaultSubobject<URogueAttributeComponent>("AttributeComponent");
 
 	TimeToHitParamName = "TimeToHit";
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+	GetMesh()->SetGenerateOverlapEvents(true);
 	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
@@ -55,9 +60,9 @@ void ARogueAICharacter::OnHealthChanged(AActor* InstigatorActor, URogueAttribute
 		
 		// Hit flash
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->GetTimeSeconds());
-		
+
+		// Just died
 		if (NewHealth <= 0.f) {
-			// Just died
 			// Stop behavior tree, ragdoll, set lifespan(time before destruction)
 			AAIController* AIController = Cast<ARogueAIController>(GetController());
 			if (ensure(AIController)) {
@@ -65,6 +70,8 @@ void ARogueAICharacter::OnHealthChanged(AActor* InstigatorActor, URogueAttribute
 			}
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
 			GetMesh()->SetCollisionProfileName("Ragdoll");
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			GetCharacterMovement()->DisableMovement();
 			
 			SetLifeSpan(10.f);
 		}

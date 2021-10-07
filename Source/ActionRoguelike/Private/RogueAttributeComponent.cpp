@@ -3,22 +3,45 @@
 
 #include "RogueAttributeComponent.h"
 
+#include "RogueGameModeBase.h"
+
+static TAutoConsoleVariable<float> CVarDamageModifier(TEXT("rogue.DamageMultiplier"), 1.f, TEXT("Global damage modifier for attribute component"), ECVF_Cheat);
+
 // Sets default values for this component's properties
 URogueAttributeComponent::URogueAttributeComponent() {}
 
 bool URogueAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta) {
-	if (!GetOwner()->CanBeDamaged()) {
+	if (!GetOwner()->CanBeDamaged() && Delta < 0.f) {
 		return false;
 	}
 	
-	if (Health == MaxHealth && Delta > 0) {
+	if (Health == MaxHealth && Delta > 0.f) {
 		return false;
 	}
+
+	if (Delta < 0.f) {
+		float DamageMultiplier = CVarDamageModifier.GetValueOnGameThread();
+
+		Delta *= DamageMultiplier;
+	}
+	float OldHealth = Health;
+	
 	Health += Delta;
 
 	Health = FMath::Clamp(Health, 0.f, MaxHealth);
 
-	OnHealthChanged.Broadcast(InstigatorActor, this, Health, Delta);
+	float ActualDelta = Health - OldHealth;
+
+	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
+
+	// Died
+	if (ActualDelta < 0.f && Health <= 0.f) {
+		ARogueGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ARogueGameModeBase>();
+		if (GameMode) {
+			GameMode->OnActorKilled(GetOwner(), InstigatorActor);
+		}
+	}
+	
 	return true;
 }
 

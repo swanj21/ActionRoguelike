@@ -79,6 +79,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="Aiming")
 	FRotator FindAimRotation();
 
+	virtual FVector GetPawnViewLocation() const override;
+
 	virtual void PostInitializeComponents() override;
 	
 public:	

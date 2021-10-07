@@ -5,6 +5,8 @@
 #include "RogueGameplayInterface.h"
 #include "DrawDebugHelpers.h"
 
+static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("rogue.InteractionDebugDraw"), false, TEXT("Enable debug lines for Interaction component"), ECVF_Cheat);
+
 // Sets default values for this component's properties
 URogueInteractionComponent::URogueInteractionComponent()
 {
@@ -35,6 +37,9 @@ void URogueInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 }
 
 void URogueInteractionComponent::PrimaryInteract() {
+
+	bool bDebugDraw = CVarDebugDrawInteraction.GetValueOnGameThread();
+	
 	FHitResult hitResult;
 	FCollisionObjectQueryParams objectQueryParams(ECC_WorldDynamic);
 
@@ -64,13 +69,18 @@ void URogueInteractionComponent::PrimaryInteract() {
 	FColor lineColor = blockingHit ? FColor::Blue : FColor::Red;
 	
 	for (FHitResult hit : hits) {
+		if (bDebugDraw) {
+			DrawDebugSphere(GetWorld(), hit.ImpactPoint, sphereRadius, 32, lineColor, false, 2.f);
+		}
+		
 		AActor* hitActor = hit.GetActor();
 		if (hitActor && hitActor->Implements<URogueGameplayInterface>()) {
 			IRogueGameplayInterface::Execute_Interact(hitActor, Cast<APawn>(owner));
 		}
-		DrawDebugSphere(GetWorld(), hit.ImpactPoint, sphereRadius, 32, lineColor, false, 2.f);
 		break;
 	}
 
-	DrawDebugLine(GetWorld(), eyeLocation, end, lineColor, false, 5.f, 0, 2.f);
+	if (bDebugDraw) {
+		DrawDebugLine(GetWorld(), eyeLocation, end, lineColor, false, 5.f, 0, 2.f);
+	}
 }

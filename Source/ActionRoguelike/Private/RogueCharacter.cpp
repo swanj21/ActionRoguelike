@@ -156,6 +156,10 @@ FRotator ARogueCharacter::FindAimRotation() {
 	return FRotator(0.f,0.f,0.f);
 }
 
+FVector ARogueCharacter::GetPawnViewLocation() const {
+	return CameraComponent->GetComponentLocation();
+}
+
 void ARogueCharacter::DoSpawnProjectile(TSubclassOf<AActor> ProjectileType) {
 	FTransform SpawnTM = FTransform(FindAimRotation(), GetMesh()->GetSocketLocation(HandSocketName));
 	if (MuzzleFlash) {

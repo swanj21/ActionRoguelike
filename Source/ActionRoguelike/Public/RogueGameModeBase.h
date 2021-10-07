@@ -41,6 +41,12 @@ class ACTIONROGUELIKE_API ARogueGameModeBase : public AGameModeBase
 	UFUNCTION()
 	void OnQueryComplete(class UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
+	UFUNCTION()
+	void RespawnPlayerTimeElapsed(AController* Controller);
+
+	public:
 	UFUNCTION(Exec)
 	void KillAllBots();
+
+	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
 };

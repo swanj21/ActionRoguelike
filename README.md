@@ -1,6 +1,20 @@
 # ActionRoguelike
 
 ## Assignments
+###Assignment 5
+**Credit System**  
+_Create a credit system_
++ Killing minions **gives** credits
++ Picking up a coin **gives** credits
+  + Coin **MUST** use shared base class w/ health potion and use activate, hide, respawn functionality
++ Using a health potion **costs** credits
++ Credits widget hooked up to show current credits
++ Credits must remain even if player dies(with a penalty) 
+  + New PlayerState class
++ **BONUS**
+  + Randomly spawn coin and health potions throughout a simple level at game start using EQS
+
+Note: System should be designed for ease of use in c++ and BP 
 
 ----
 ### Assignment 4
