@@ -24,6 +24,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Damage")
 	float Damage;
+
+	UPROPERTY(BlueprintReadOnly, Category="Damage")
+	AActor* HitActor = nullptr;
 	
 public:	
 	// Called every frame

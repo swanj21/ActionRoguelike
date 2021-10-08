@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "BrainComponent.h"
 #include "DrawDebugHelpers.h"
+#include "RGameplayFunctionLibrary.h"
 #include "RogueAttributeComponent.h"
 #include "RWorldUserWidget.h"
 #include "AI/RogueAIController.h"
@@ -26,6 +27,8 @@ ARogueAICharacter::ARogueAICharacter()
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
 	GetMesh()->SetGenerateOverlapEvents(true);
+
+	CreditsToGive = 10.f;
 	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
@@ -63,16 +66,19 @@ void ARogueAICharacter::OnHealthChanged(AActor* InstigatorActor, URogueAttribute
 
 		// Just died
 		if (NewHealth <= 0.f) {
-			// Stop behavior tree, ragdoll, set lifespan(time before destruction)
 			AAIController* AIController = Cast<ARogueAIController>(GetController());
 			if (ensure(AIController)) {
 				AIController->GetBrainComponent()->StopLogic("Killed");
 			}
+			
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
 			GetMesh()->SetCollisionProfileName("Ragdoll");
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			GetCharacterMovement()->DisableMovement();
-			
+
+			UE_LOG(LogTemp, Warning, TEXT("Giving %f credits to %s because of kill"), CreditsToGive, *GetNameSafe(InstigatorActor))
+			URGameplayFunctionLibrary::GiveCredits(InstigatorActor->GetInstigatorController(), CreditsToGive);
+
 			SetLifeSpan(10.f);
 		}
 	}

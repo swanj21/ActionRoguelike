@@ -30,11 +30,14 @@ protected:
 
 	FTimerHandle EnableItemTimerHandle;
 
-	UFUNCTION(BlueprintCallable, Category="Activation")
-	virtual void DisableItem() { UE_LOG(LogTemp, Error, TEXT("Disable Item has not been overridden")) }
+	UPROPERTY(EditAnywhere, Category="Timer")
+	float RespawnTimer = 10.f;
 
 	UFUNCTION(BlueprintCallable, Category="Activation")
-	virtual void EnableItem() { UE_LOG(LogTemp, Error, TEXT("Enable Item has not been overridden")) }
+	virtual void DisableItem();
+
+	UFUNCTION(BlueprintCallable, Category="Activation")
+	virtual void EnableItem();
 
 	bool IsActive = true;
 

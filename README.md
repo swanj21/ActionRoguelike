@@ -1,7 +1,7 @@
 # ActionRoguelike
 
 ## Assignments
-###Assignment 5
+### Assignment 5
 **Credit System**  
 _Create a credit system_
 + Killing minions **gives** credits

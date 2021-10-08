@@ -10,6 +10,9 @@ static TAutoConsoleVariable<float> CVarDamageModifier(TEXT("rogue.DamageMultipli
 // Sets default values for this component's properties
 URogueAttributeComponent::URogueAttributeComponent() {}
 
+// -------------------- //
+// ------ HEALTH ------ //
+// -------------------- //
 bool URogueAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta) {
 	if (!GetOwner()->CanBeDamaged() && Delta < 0.f) {
 		return false;

@@ -15,7 +15,11 @@ class ACTIONROGUELIKE_API URogueAttributeComponent : public UActorComponent {
 public:
 	URogueAttributeComponent();
 
-protected:
+	// -------------------- //
+	// ------ HEALTH ------ //
+	// -------------------- //
+	protected:
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health")
 	float Health = 100;
 
@@ -27,8 +31,9 @@ protected:
 	*/
 	UPROPERTY(EditAnywhere, Category="Health")
 	float LowHealthThreshold;
-	
-public:
+
+	public:
+
 	UFUNCTION(BlueprintCallable, Category="Health")
 	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
 
@@ -50,9 +55,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Health")
 	bool Kill(AActor* InstigatorActor);
 
-	// ------
-	// STATIC
-	// ------
+	// -------------------- //
+	// ------ STATIC ------ //
+	// -------------------- //
 	public:
 	UFUNCTION(BlueprintCallable, Category="Attributes")
 	static URogueAttributeComponent* GetAttributes(AActor* FromActor);

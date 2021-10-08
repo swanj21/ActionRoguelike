@@ -5,21 +5,29 @@
 
 #include "DrawDebugHelpers.h"
 #include "EngineUtils.h"
+#include "RGameplayFunctionLibrary.h"
 #include "RogueAttributeComponent.h"
 #include "RogueCharacter.h"
+#include "RPlayerState.h"
 #include "AI/RogueAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("rogue.SpawnBots"), true, TEXT("Enable spawning of bots via a timer"), ECVF_Cheat);
 
 ARogueGameModeBase::ARogueGameModeBase() {
-	SpawnTimeInterval = 2.f;
+	MinionSpawnTimeInterval = 2.f;
+	MaxBotsToSpawn = 10.f;
+	MaxCoinsToSpawn = 10.f;
+	MaxHealthToSpawn = 3.f;
 }
 
 void ARogueGameModeBase::StartPlay() {
 	Super::StartPlay();
 
-	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ARogueGameModeBase::SpawnBotTimerElapsed, SpawnTimeInterval, true);
+	UE_LOG(LogTemp, Warning, TEXT("Spawning items"))
+	SpawnHealthAtStart();
+	SpawnCoinsAtStart();
+	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ARogueGameModeBase::SpawnBotTimerElapsed, MinionSpawnTimeInterval, true);
 }
 
 void ARogueGameModeBase::SpawnBotTimerElapsed() {
@@ -45,24 +53,20 @@ void ARogueGameModeBase::SpawnBotTimerElapsed() {
 		}
 	}
 
-	float MaxBotCount = 10.f;
-	if (DifficultyCurve) {
-		MaxBotCount = DifficultyCurve->GetFloatValue(GetWorld()->GetTimeSeconds());
+	if (DifficultyCurve && bShouldSpawnBotsFromCurve) {
+		MaxBotsToSpawn = DifficultyCurve->GetFloatValue(GetWorld()->GetTimeSeconds());
 	}
-
-	UE_LOG(LogTemp, Log, TEXT("Found %i bots alive and %f bots max"), CurAliveBots, MaxBotCount)
-
-	if (CurAliveBots >= MaxBotCount) {
-		UE_LOG(LogTemp, Log, TEXT("At max capacity, skipping spawn"))
+	
+	if (CurAliveBots >= MaxBotsToSpawn) {
 		return;
 	}
 	
 	if (ensure(QueryInstance)) {
-		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ARogueGameModeBase::OnQueryComplete);
+		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ARogueGameModeBase::OnMinionSpawnQueryComplete);
 	}
 }
 
-void ARogueGameModeBase::OnQueryComplete(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus) {
+void ARogueGameModeBase::OnMinionSpawnQueryComplete(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus) {
 	if (QueryStatus != EEnvQueryStatus::Success) {
 		UE_LOG(LogTemp, Error, TEXT("Spawn bot EQS query failed"))
 		return;
@@ -75,6 +79,63 @@ void ARogueGameModeBase::OnQueryComplete(UEnvQueryInstanceBlueprintWrapper* Quer
 		UE_LOG(LogTemp, Log, TEXT("Spawning new bot"))
 		GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
 		DrawDebugSphere(GetWorld(), Locations[0], 30.f, 8, FColor::Blue, true, 5.f,0, 3.f);
+	}
+}
+
+void ARogueGameModeBase::SpawnCoinsAtStart() {
+	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(
+	GetWorld(),
+	SpawnCoinQuery,
+	this, 
+	EEnvQueryRunMode::AllMatching,
+	nullptr);
+
+	if (ensure(QueryInstance)) {
+		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ARogueGameModeBase::OnCoinSpawnQueryComplete);
+	}
+}
+void ARogueGameModeBase::OnCoinSpawnQueryComplete(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus) {
+	if (QueryStatus != EEnvQueryStatus::Success) {
+		UE_LOG(LogTemp, Error, TEXT("Spawn coin EQS query failed"))
+		return;
+	}
+
+	TArray<FVector> Locations;
+	QueryInstance->GetQueryResultsAsLocations(Locations);
+	
+	for (float Counter = 0.f; Counter < MaxCoinsToSpawn; Counter++) {
+		int32 Index = FMath::RandRange(0, Locations.Num() - 1);
+
+		GetWorld()->SpawnActor<AActor>(CoinClass, Locations[Index], FRotator::ZeroRotator);
+	}
+}
+
+void ARogueGameModeBase::SpawnHealthAtStart() {
+	UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(
+	GetWorld(),
+	SpawnHealthQuery,
+	this, 
+	EEnvQueryRunMode::AllMatching,
+	nullptr);
+
+	if (ensure(QueryInstance)) {
+		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ARogueGameModeBase::OnHealthSpawnQueryComplete);
+	}
+}
+
+void ARogueGameModeBase::OnHealthSpawnQueryComplete(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus) {
+	if (QueryStatus != EEnvQueryStatus::Success) {
+		UE_LOG(LogTemp, Error, TEXT("Spawn health EQS query failed"))
+		return;
+	}
+	
+	TArray<FVector> Locations;
+	QueryInstance->GetQueryResultsAsLocations(Locations);
+
+	for (float Counter = 0.f; Counter < MaxHealthToSpawn; Counter++) {
+		int32 Index = FMath::RandRange(0, Locations.Num() - 1);
+
+		GetWorld()->SpawnActor<AActor>(HealthPotionClass, Locations[Index], FRotator::ZeroRotator);
 	}
 }
 
@@ -100,6 +161,10 @@ void ARogueGameModeBase::KillAllBots() {
 void ARogueGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer) {
 	ARogueCharacter* Player = Cast<ARogueCharacter>(VictimActor);
 	if (Player) {
+		// Remove credits
+		URGameplayFunctionLibrary::TakeCredits(Player->GetController(), 10);
+		
+		// Respawning
 		FTimerHandle TimerHandle_RespawnDelay;
 		FTimerDelegate Delegate;
 		Delegate.BindUFunction(this, "RespawnPlayerTimeElapsed", Player->GetController());
@@ -107,5 +172,4 @@ void ARogueGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer) {
 		float RespawnDelay = 2.f;
 		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("OnActorKilled: Victim is %s and Killer is %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer))
 }

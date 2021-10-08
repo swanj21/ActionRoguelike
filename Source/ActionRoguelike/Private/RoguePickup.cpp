@@ -22,6 +22,17 @@ void ARoguePickup::BeginPlay()
 	
 }
 
+void ARoguePickup::DisableItem() {
+	// Could also do RootComponent->SetVisibility(false, true) where the 'true' tells it to propagate to all children.
+	StaticMeshComponent->SetVisibility(false);
+	IsActive = false;
+}
+
+void ARoguePickup::EnableItem() {
+	StaticMeshComponent->SetVisibility(true);
+	IsActive = true;
+}
+
 // Called every frame
 void ARoguePickup::Tick(float DeltaTime)
 {

@@ -4,6 +4,8 @@
 #include "RGameplayFunctionLibrary.h"
 
 #include "RogueAttributeComponent.h"
+#include "RogueCharacter.h"
+#include "RPlayerState.h"
 
 
 bool URGameplayFunctionLibrary::ApplyDamage(AActor* DamageCauser, AActor* TargetActor, float DamageAmount) {
@@ -24,4 +26,24 @@ bool URGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, AAc
 		}
 	}
 	return false;
+}
+
+bool URGameplayFunctionLibrary::GiveCredits(AController* To, float Amount/*, UEnum::CreditReason Reason */) {
+	return ModifyCredits(To, Amount);
+}
+
+bool URGameplayFunctionLibrary::TakeCredits(AController* From, float Amount/*, UEnum::CreditReason Reason */) {
+	return ModifyCredits(From, -Amount);
+}
+
+bool URGameplayFunctionLibrary::ModifyCredits(AController* Controller, float Amount) {
+	UE_LOG(LogTemp, Warning, TEXT("Modifying %f credits on %s"), Amount, *GetNameSafe(Controller))
+	if (!Controller) {
+		return false;
+	}
+	ARPlayerState* PlayerState = Controller->GetPlayerState<ARPlayerState>();
+	if (!PlayerState) {
+		return false;
+	}
+	return PlayerState->UpdateCredits(Amount);
 }

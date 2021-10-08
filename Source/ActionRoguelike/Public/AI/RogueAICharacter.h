@@ -42,4 +42,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="AI")
 	void SetTargetActor(AActor* NewTarget);
 
+	// CREDITS
+
+	UPROPERTY(EditAnywhere, Category="Credits")
+	float CreditsToGive;
+
 };

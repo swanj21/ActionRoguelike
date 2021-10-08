@@ -3,28 +3,42 @@
 
 #include "RoguePickupHealth.h"
 
+#include "RGameplayFunctionLibrary.h"
 #include "RogueAttributeComponent.h"
+#include "RPlayerState.h"
+
+ARoguePickupHealth::ARoguePickupHealth() {
+	CreditCost = 50.f;
+	HealValue = 50.f;
+}
 
 void ARoguePickupHealth::Interact_Implementation(APawn* InstigatorPawn) {
-	if (!IsActive) {
+	if (!InstigatorPawn || !IsActive) {
+		return;
+	}
+
+	AController* Controller = InstigatorPawn->GetInstigatorController();
+	if (!Controller) {
+		return;
+	}
+
+	if(!HasEnoughCredits(Controller)) {
+		UE_LOG(LogTemp, Error, TEXT("Player %s does not have enough credits!"), *GetNameSafe(Controller))
 		return;
 	}
 	URogueAttributeComponent* AttributeComponent = Cast<URogueAttributeComponent>(InstigatorPawn->GetComponentByClass(URogueAttributeComponent::StaticClass()));
-	bool IsHealed = AttributeComponent->ApplyHealthChange(this, HealValue);
 	
-	if (IsHealed) {
+	if (AttributeComponent && AttributeComponent->ApplyHealthChange(this, HealValue)) {
+		URGameplayFunctionLibrary::TakeCredits(Controller, CreditCost);
 		DisableItem();
 		GetWorldTimerManager().SetTimer(EnableItemTimerHandle, this, &ARoguePickupHealth::EnableItem, RespawnTimer);
 	}	
 }
 
-void ARoguePickupHealth::DisableItem() {
-	// Could also do RootComponent->SetVisibility(false, true) where the 'true' tells it to propagate to all children.
-	StaticMeshComponent->SetVisibility(false);
-	IsActive = false;
-}
-
-void ARoguePickupHealth::EnableItem() {
-	StaticMeshComponent->SetVisibility(true);
-	IsActive = true;
+bool ARoguePickupHealth::HasEnoughCredits(AController* Controller) {
+	ARPlayerState* PlayerState = Controller->GetPlayerState<ARPlayerState>();
+	if (ensure(PlayerState)) {
+		return PlayerState->GetCurrentCredits() >= CreditCost;
+	}
+	return false;
 }

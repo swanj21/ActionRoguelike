@@ -38,10 +38,15 @@ void ARogueMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedCompon
 	int32 OtherBodyIndex,
 	bool bFromSweep,
 	const FHitResult & SweepResult) {
-	UE_LOG(LogTemp, Warning, TEXT("Overlapping %s"), *GetNameSafe(OtherActor))
+
+	if (HitActor) { return; } // TODO: This feels like a short-term workaround
+
+	UE_LOG(LogTemp, Warning, TEXT("Overlapping %s"), *GetNameSafe(OtherComp))
+
 	if (OtherActor && OtherActor != GetInstigator()) {
+		HitActor = OtherActor;
 		UE_LOG(LogTemp, Warning, TEXT("Attempting to damage %s"), *GetNameSafe(OtherActor))
-		if (URGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult)) {
+		if (!IsPendingKill() && URGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult)) {
 			UE_LOG(LogTemp, Warning, TEXT("Successfully damaged %s, now being destroyed"), *GetNameSafe(OtherActor))
 			Destroy();
 		}

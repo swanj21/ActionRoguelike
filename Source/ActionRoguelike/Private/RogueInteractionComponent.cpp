@@ -54,7 +54,7 @@ void URogueInteractionComponent::PrimaryInteract() {
 
 	owner->GetActorEyesViewPoint(eyeLocation, eyeRotation);
 
-	FVector end = eyeLocation + (eyeRotation.Vector() * 1000);
+	FVector TraceEnd = eyeLocation + (eyeRotation.Vector() * 1000);
 	
 	// bool blockingHit = GetWorld()->LineTraceSingleByObjectType(hitResult, eyeLocation, end, objectQueryParams);
 
@@ -64,7 +64,7 @@ void URogueInteractionComponent::PrimaryInteract() {
 	float sphereRadius = 30.f;
 	shape.SetSphere(sphereRadius);
 
-	bool blockingHit = GetWorld()->SweepMultiByObjectType(hits, eyeLocation, end, FQuat::Identity, objectQueryParams, shape);
+	bool blockingHit = GetWorld()->SweepMultiByObjectType(hits, eyeLocation, TraceEnd, FQuat::Identity, objectQueryParams, shape);
 
 	FColor lineColor = blockingHit ? FColor::Blue : FColor::Red;
 	
@@ -81,6 +81,6 @@ void URogueInteractionComponent::PrimaryInteract() {
 	}
 
 	if (bDebugDraw) {
-		DrawDebugLine(GetWorld(), eyeLocation, end, lineColor, false, 5.f, 0, 2.f);
+		DrawDebugLine(GetWorld(), eyeLocation, TraceEnd, lineColor, false, 5.f, 0, 2.f);
 	}
 }
