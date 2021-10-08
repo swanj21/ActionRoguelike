@@ -47,6 +47,9 @@ class ACTIONROGUELIKE_API ARogueGameModeBase : public AGameModeBase
 	UPROPERTY(EditDefaultsOnly, Category="AI")
 	bool bShouldSpawnBotsFromCurve;
 
+	UPROPERTY(EditDefaultsOnly, Category="Player")
+	float PlayerRespawnDelay;
+
 	UPROPERTY(EditDefaultsOnly, Category="AI")
 	class UEnvQuery* SpawnBotQuery;
 

@@ -1,6 +1,9 @@
 # ActionRoguelike
 
 ## Assignments
+
+
+----
 ### Assignment 5
 **Credit System**  
 _Create a credit system_
@@ -15,6 +18,8 @@ _Create a credit system_
   + Randomly spawn coin and health potions throughout a simple level at game start using EQS
 
 Note: System should be designed for ease of use in c++ and BP 
+
+_COMPLETE_
 
 ----
 ### Assignment 4

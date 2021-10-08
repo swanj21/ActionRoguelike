@@ -8,7 +8,6 @@
 #include "RGameplayFunctionLibrary.h"
 #include "RogueAttributeComponent.h"
 #include "RogueCharacter.h"
-#include "RPlayerState.h"
 #include "AI/RogueAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 
@@ -19,6 +18,7 @@ ARogueGameModeBase::ARogueGameModeBase() {
 	MaxBotsToSpawn = 10.f;
 	MaxCoinsToSpawn = 10.f;
 	MaxHealthToSpawn = 3.f;
+	PlayerRespawnDelay = 2.f;
 }
 
 void ARogueGameModeBase::StartPlay() {
@@ -169,7 +169,6 @@ void ARogueGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer) {
 		FTimerDelegate Delegate;
 		Delegate.BindUFunction(this, "RespawnPlayerTimeElapsed", Player->GetController());
 		
-		float RespawnDelay = 2.f;
-		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
+		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, PlayerRespawnDelay, false);
 	}
 }
