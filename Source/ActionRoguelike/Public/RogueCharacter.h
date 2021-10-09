@@ -29,29 +29,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	class URogueAttributeComponent* AttributeComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+	class URActionComponent* ActionComponent;
+
 	UPROPERTY(EditAnywhere, Category="Attack")
 	TSubclassOf<AActor> PrimaryProjectileClass;
 
 	UPROPERTY(EditAnywhere, Category="Attack")
 	TSubclassOf<AActor> SecondaryProjectileClass;
-	
-	UPROPERTY(EditAnywhere, Category="Attack")
-	class UAnimMontage* AttackAnimation;
-
-	UPROPERTY(EditAnywhere, Category="Effects")
-	class UParticleSystem* MuzzleFlash;
-
-	UPROPERTY(VisibleAnywhere, Category="Effects")
-	FName HandSocketName;
 
 	UPROPERTY(VisibleAnywhere, Category="Effects")
 	FName TimeToHitParamName;
-	
-	UPROPERTY(EditAnywhere, Category="Attack")
-	float AttackDistance = 5000.f;
-
-	UPROPERTY(EditAnywhere, Category="Teleport")
-	TSubclassOf<AActor> TeleportProjectileClass;
 
 	UPROPERTY(VisibleAnywhere, Category="Interaction")
 	class URogueInteractionComponent* InteractionComponent;
@@ -66,19 +54,6 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	
-	void PrimaryAttack();
-	void ProjectileAttack(FString AttackType);
-	void PrimaryAttack_TimeElapsed();
-	void SecondaryAttack();
-	void SecondaryAttack_TimeElapsed();
-	void PrimaryInteract();
-	void ProjectileTeleport();
-	void ProjectileTeleport_TimeElapsed();
-	void DoSpawnProjectile(TSubclassOf<AActor> ProjectileType);
-
-	UFUNCTION(BlueprintCallable, Category="Aiming")
-	FRotator FindAimRotation();
-
 	virtual FVector GetPawnViewLocation() const override;
 
 	virtual void PostInitializeComponents() override;
@@ -92,4 +67,20 @@ public:
 
 	UFUNCTION(Exec)
 	void HealSelf(float Amount = 100);
+
+	// --------- //
+	// ABILITIES //
+	// --------- //
+	protected:
+
+	UFUNCTION()
+	void SprintStart();
+
+	UFUNCTION()
+	void SprintStop();
+
+	void PrimaryAttack();
+	void SecondaryAttack();
+	void PrimaryInteract();
+	void ProjectileTeleport();
 };

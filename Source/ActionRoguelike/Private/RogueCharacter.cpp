@@ -2,13 +2,12 @@
 
 #include "RogueCharacter.h"
 
-#include "DrawDebugHelpers.h"
+#include "RActionComponent.h"
 #include "RogueInteractionComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Particles/ParticleSystem.h"
 
 // Sets default values
 ARogueCharacter::ARogueCharacter() {
@@ -29,14 +28,13 @@ ARogueCharacter::ARogueCharacter() {
 	// Attributes
 	AttributeComponent = CreateDefaultSubobject<URogueAttributeComponent>(TEXT("AttributeComponent"));
 
-	// Particle system
-	MuzzleFlash = CreateDefaultSubobject<UParticleSystem>("Particle System");
+	// Actions
+	ActionComponent = CreateDefaultSubobject<URActionComponent>("ActionComponent");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true; // This will rotate our character no matter what we're moving towards.
 	GetCharacterMovement()->JumpZVelocity = 500.f;
 	bUseControllerRotationYaw = false;
 
-	HandSocketName = "Muzzle_01";
 	TimeToHitParamName = "TimeToHit";
 }
 
@@ -67,6 +65,9 @@ void ARogueCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("SecondaryAttack", IE_Pressed, this, &ARogueCharacter::SecondaryAttack);
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ARogueCharacter::PrimaryInteract);
 	PlayerInputComponent->BindAction("Teleport", IE_Pressed, this, &ARogueCharacter::ProjectileTeleport);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ARogueCharacter::SprintStart);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ARogueCharacter::SprintStop);
 }
 
 void ARogueCharacter::MoveForward(float Value) {
@@ -88,90 +89,23 @@ void ARogueCharacter::MoveRight(float Value) {
 }
 
 void ARogueCharacter::PrimaryAttack() {
-	ProjectileAttack("Primary");
-}
-
-void ARogueCharacter::PrimaryAttack_TimeElapsed() {
-	DoSpawnProjectile(PrimaryProjectileClass);
+	ActionComponent->StartActionByName(this, "PrimaryAttack");
 }
 
 void ARogueCharacter::SecondaryAttack() {
-	ProjectileAttack("Secondary");
-}
-
-void ARogueCharacter::SecondaryAttack_TimeElapsed() {
-	DoSpawnProjectile(SecondaryProjectileClass);
+	ActionComponent->StartActionByName(this, "BlackHole");
 }
 
 void ARogueCharacter::ProjectileTeleport() {
-	ProjectileAttack("Teleport");
-}
-
-void ARogueCharacter::ProjectileTeleport_TimeElapsed() {
-	DoSpawnProjectile(TeleportProjectileClass);
-}
-
-void ARogueCharacter::ProjectileAttack(FString AttackType) {
-	PlayAnimMontage(AttackAnimation);
-	if (AttackType.Equals("Primary")) {
-		GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ARogueCharacter::PrimaryAttack_TimeElapsed, .18f);
-	} else if (AttackType.Equals("Secondary")) {
-		GetWorldTimerManager().SetTimer(TimerHandle_SecondaryAttack, this, &ARogueCharacter::SecondaryAttack_TimeElapsed, .18f);
-	} else if (AttackType.Equals("Teleport")) {
-		GetWorldTimerManager().SetTimer(TimerHandle_ProjectileTeleport, this, &ARogueCharacter::ProjectileTeleport_TimeElapsed, .18f);
-	}
+	ActionComponent->StartActionByName(this, "Teleport");
 }
 
 void ARogueCharacter::PrimaryInteract() {
 	InteractionComponent->PrimaryInteract();
 }
 
-FRotator ARogueCharacter::FindAimRotation() {
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	if (ensureAlways(PlayerController)) {
-		FVector CrosshairWorldLocation, CrosshairWorldDirection;
-
-		// Trace start
-		int32 ViewportX, ViewportY;
-		PlayerController->GetViewportSize(ViewportX, ViewportY);
-		PlayerController->DeprojectScreenPositionToWorld(ViewportX/2, ViewportY/2, CrosshairWorldLocation, CrosshairWorldDirection);
-		
-		// Trace end
-		const FVector TraceEnd = CameraComponent->GetForwardVector() * AttackDistance + CrosshairWorldLocation;
-		
-		// Objects
-		FCollisionObjectQueryParams objectQueryParams;
-		objectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-		objectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-		
-		// Perform trace
-		FHitResult hit;
-
-		GetWorld()->LineTraceSingleByObjectType(hit, CrosshairWorldLocation, TraceEnd, objectQueryParams);
-		
-		return hit.bBlockingHit ?
-			(hit.ImpactPoint - GetMesh()->GetSocketLocation(HandSocketName)).Rotation() :
-			(TraceEnd - GetMesh()->GetSocketLocation(HandSocketName)).Rotation();
-	}
-	return FRotator(0.f,0.f,0.f);
-}
-
 FVector ARogueCharacter::GetPawnViewLocation() const {
 	return CameraComponent->GetComponentLocation();
-}
-
-void ARogueCharacter::DoSpawnProjectile(TSubclassOf<AActor> ProjectileType) {
-	FTransform SpawnTM = FTransform(FindAimRotation(), GetMesh()->GetSocketLocation(HandSocketName));
-	if (MuzzleFlash) {
-		UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GetMesh(), HandSocketName);
-	} else {
-		UE_LOG(LogTemp, Error, TEXT("Could not spawn MuzzleFlash emitter, value is null"))
-	}
-	FActorSpawnParameters spawnParams;
-	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	spawnParams.Instigator = this;
-	
-	GetWorld()->SpawnActor<AActor>(ProjectileType, SpawnTM, spawnParams);
 }
 
 void ARogueCharacter::OnHealthChanged(AActor* InstigatorActor, class URogueAttributeComponent* OwningComponent, float NewHealth, float Delta) {
@@ -187,4 +121,13 @@ void ARogueCharacter::OnHealthChanged(AActor* InstigatorActor, class URogueAttri
 
 void ARogueCharacter::HealSelf(float Amount/* = 100 */) {
 	AttributeComponent->ApplyHealthChange(this, Amount);
+}
+
+// ABILITIES
+void ARogueCharacter::SprintStart() {
+	ActionComponent->StartActionByName(this, "Sprint");
+}
+
+void ARogueCharacter::SprintStop() {
+	ActionComponent->StopActionByName(this, "Sprint");
 }
