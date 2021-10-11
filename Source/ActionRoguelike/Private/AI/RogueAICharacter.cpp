@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "BrainComponent.h"
 #include "DrawDebugHelpers.h"
+#include "RActionComponent.h"
 #include "RGameplayFunctionLibrary.h"
 #include "RogueAttributeComponent.h"
 #include "RWorldUserWidget.h"
@@ -22,6 +23,8 @@ ARogueAICharacter::ARogueAICharacter()
 	PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComponent");
 
 	AttributeComponent = CreateDefaultSubobject<URogueAttributeComponent>("AttributeComponent");
+
+	ActionComponent = CreateDefaultSubobject<URActionComponent>("ActionComponent");
 
 	TimeToHitParamName = "TimeToHit";
 

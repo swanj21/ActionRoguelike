@@ -20,6 +20,9 @@ void URActionComponent::BeginPlay() {
 void URActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                       FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	FString DebugMessage = GetNameSafe(GetOwner()) + " : " + ActiveGameplayTags.ToStringSimple();
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, DebugMessage);
 }
 
 void URActionComponent::AddAction(TSubclassOf<URAction> ActionClass) {
@@ -31,6 +34,10 @@ void URActionComponent::AddAction(TSubclassOf<URAction> ActionClass) {
 bool URActionComponent::StartActionByName(AActor* Instigator, FName ActionName) {
 	for (URAction* Action : Actions) {
 		if (Action && Action->ActionName == ActionName) {
+			if (!Action->CanStart(Instigator)) {
+				UE_LOG(LogTemp, Warning, TEXT("Failed to run action %s"), *ActionName.ToString())
+				continue;
+			}
 			Action->StartAction(Instigator);
 			return true;
 		}
@@ -41,8 +48,10 @@ bool URActionComponent::StartActionByName(AActor* Instigator, FName ActionName) 
 bool URActionComponent::StopActionByName(AActor* Instigator, FName ActionName) {
 	for (URAction* Action : Actions) {
 		if (Action && Action->ActionName == ActionName) {
-			Action->StopAction(Instigator);
-			return true;
+			if (Action->IsRunning()) {
+				Action->StopAction(Instigator);
+				return true;
+			}
 		}
 	}
 	return false;

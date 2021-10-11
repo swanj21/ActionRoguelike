@@ -3,9 +3,11 @@
 
 #include "RogueMagicProjectile.h"
 
+#include "RActionComponent.h"
 #include "RGameplayFunctionLibrary.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -40,14 +42,17 @@ void ARogueMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedCompon
 	const FHitResult & SweepResult) {
 
 	if (HitActor) { return; } // TODO: This feels like a short-term workaround
-
-	UE_LOG(LogTemp, Warning, TEXT("Overlapping %s"), *GetNameSafe(OtherComp))
-
+	
 	if (OtherActor && OtherActor != GetInstigator()) {
+		URActionComponent* ActionComponent = Cast<URActionComponent>(OtherActor->GetComponentByClass(URActionComponent::StaticClass()));
+		if (ActionComponent && ActionComponent->ActiveGameplayTags.HasTag(ParryTag)) {
+			MovementComponent->Velocity = -MovementComponent->Velocity;
+			SetInstigator(Cast<APawn>(OtherActor));
+
+			return;
+		}
 		HitActor = OtherActor;
-		UE_LOG(LogTemp, Warning, TEXT("Attempting to damage %s"), *GetNameSafe(OtherActor))
 		if (!IsPendingKill() && URGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult)) {
-			UE_LOG(LogTemp, Warning, TEXT("Successfully damaged %s, now being destroyed"), *GetNameSafe(OtherActor))
 			Destroy();
 		}
 	}

@@ -24,6 +24,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	class URogueAttributeComponent* AttributeComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+	class URActionComponent* ActionComponent;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Effects")
 	FName TimeToHitParamName;
 
