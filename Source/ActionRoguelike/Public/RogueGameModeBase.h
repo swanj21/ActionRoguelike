@@ -62,6 +62,9 @@ class ACTIONROGUELIKE_API ARogueGameModeBase : public AGameModeBase
 	UPROPERTY(EditDefaultsOnly, Category="AI")
 	class UCurveFloat* DifficultyCurve;
 
+	UPROPERTY(EditDefaultsOnly, Category="Pickup")
+	float RequiredObjectDistance;
+
 	UFUNCTION()
 	void SpawnBotTimerElapsed();
 

@@ -8,6 +8,7 @@
 #include "RGameplayFunctionLibrary.h"
 #include "RogueAttributeComponent.h"
 #include "RogueCharacter.h"
+#include "RPlayerState.h"
 #include "AI/RogueAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 
@@ -19,6 +20,9 @@ ARogueGameModeBase::ARogueGameModeBase() {
 	MaxCoinsToSpawn = 10.f;
 	MaxHealthToSpawn = 3.f;
 	PlayerRespawnDelay = 2.f;
+	RequiredObjectDistance = 1000.f;
+
+	PlayerStateClass = ARPlayerState::StaticClass();
 }
 
 void ARogueGameModeBase::StartPlay() {
@@ -102,11 +106,37 @@ void ARogueGameModeBase::OnCoinSpawnQueryComplete(UEnvQueryInstanceBlueprintWrap
 
 	TArray<FVector> Locations;
 	QueryInstance->GetQueryResultsAsLocations(Locations);
-	
-	for (float Counter = 0.f; Counter < MaxCoinsToSpawn; Counter++) {
+
+	// Keeping track of the locations we have already used
+	TArray<FVector> UsedLocations;
+
+	int32 SpawnCounter = 0;
+	while(SpawnCounter < MaxCoinsToSpawn && Locations.Num() > 0) {
+		// Pick a random location
 		int32 Index = FMath::RandRange(0, Locations.Num() - 1);
 
-		GetWorld()->SpawnActor<AActor>(CoinClass, Locations[Index], FRotator::ZeroRotator);
+		FVector ChosenLocation = Locations[Index];
+		// Remove from the array so we don't pick it again
+		Locations.RemoveAt(Index);
+
+		// Check to see if it is at a minimum distance from any other existing locations
+		bool bIsValidLocation = true;
+		for (FVector UsedLocation : UsedLocations) {
+			float DistanceBetween = (ChosenLocation - UsedLocation).Size();
+
+			if (DistanceBetween < RequiredObjectDistance) {
+				bIsValidLocation = false;
+				break;
+			}
+		}
+
+		if (!bIsValidLocation) {
+			continue;
+		}
+		GetWorld()->SpawnActor<AActor>(CoinClass, ChosenLocation, FRotator::ZeroRotator);
+
+		UsedLocations.Add(ChosenLocation);
+		SpawnCounter++;
 	}
 }
 
