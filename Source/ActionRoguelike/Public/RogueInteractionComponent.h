@@ -22,6 +22,26 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	void FindBestInteractable();
+
+	UPROPERTY()
+	AActor* FocusedActor;
+
+	UPROPERTY(EditDefaultsOnly, Category="UI")
+	TSubclassOf<class URWorldUserWidget> DefaultWidgetClass;
+
+	UPROPERTY()
+	URWorldUserWidget* DefaultWidgetInstance;
+
+	UPROPERTY(EditDefaultsOnly, Category="LineTrace")
+	float TraceDistance;
+
+	UPROPERTY(EditDefaultsOnly, Category="LineTrace")
+	float TraceRadius;
+
+	UPROPERTY(EditDefaultsOnly, Category="LineTrace")
+	TEnumAsByte<ECollisionChannel> ChannelToQuery;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

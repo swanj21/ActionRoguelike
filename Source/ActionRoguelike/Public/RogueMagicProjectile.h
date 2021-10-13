@@ -31,6 +31,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category="Damage")
 	AActor* HitActor = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	TSubclassOf<class URActionEffect> BurningActionClass;
 	
 public:	
 	// Called every frame

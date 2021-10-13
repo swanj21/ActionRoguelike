@@ -4,44 +4,28 @@
 #include "RogueInteractionComponent.h"
 #include "RogueGameplayInterface.h"
 #include "DrawDebugHelpers.h"
+#include "Blueprint/UserWidget.h"
+#include "RWorldUserWidget.h"
 
-static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("rogue.InteractionDebugDraw"), false, TEXT("Enable debug lines for Interaction component"), ECVF_Cheat);
+static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(
+	TEXT("rogue.InteractionDebugDraw"), false, TEXT("Enable debug lines for Interaction component"), ECVF_Cheat);
 
-// Sets default values for this component's properties
-URogueInteractionComponent::URogueInteractionComponent()
-{
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
+URogueInteractionComponent::URogueInteractionComponent() {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+	TraceDistance = 500.f;
+	TraceRadius = 30.f;
+	ChannelToQuery = ECC_WorldDynamic;
 }
 
-
-// Called when the game starts
-void URogueInteractionComponent::BeginPlay()
-{
+void URogueInteractionComponent::BeginPlay() {
 	Super::BeginPlay();
-
-	// ...
-	
 }
 
-
-// Called every frame
-void URogueInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
-void URogueInteractionComponent::PrimaryInteract() {
-
+void URogueInteractionComponent::FindBestInteractable() {
 	bool bDebugDraw = CVarDebugDrawInteraction.GetValueOnGameThread();
-	
-	FHitResult hitResult;
-	FCollisionObjectQueryParams objectQueryParams(ECC_WorldDynamic);
+
+	FCollisionObjectQueryParams objectQueryParams(ChannelToQuery);
 
 	AActor* owner = GetOwner();
 	if (!owner) {
@@ -54,33 +38,68 @@ void URogueInteractionComponent::PrimaryInteract() {
 
 	owner->GetActorEyesViewPoint(eyeLocation, eyeRotation);
 
-	FVector TraceEnd = eyeLocation + (eyeRotation.Vector() * 1000);
-	
+	FVector TraceEnd = eyeLocation + (eyeRotation.Vector() * TraceDistance);
+
 	// bool blockingHit = GetWorld()->LineTraceSingleByObjectType(hitResult, eyeLocation, end, objectQueryParams);
 
 	// Sphere tracing
 	TArray<FHitResult> hits;
 	FCollisionShape shape;
-	float sphereRadius = 30.f;
-	shape.SetSphere(sphereRadius);
+	shape.SetSphere(TraceRadius);
 
-	bool blockingHit = GetWorld()->SweepMultiByObjectType(hits, eyeLocation, TraceEnd, FQuat::Identity, objectQueryParams, shape);
+	bool blockingHit = GetWorld()->SweepMultiByObjectType(hits, eyeLocation, TraceEnd, FQuat::Identity,
+	                                                      objectQueryParams, shape);
 
 	FColor lineColor = blockingHit ? FColor::Blue : FColor::Red;
-	
+
+	FocusedActor = nullptr; // Clear the focus before trying to fill it
 	for (FHitResult hit : hits) {
 		if (bDebugDraw) {
-			DrawDebugSphere(GetWorld(), hit.ImpactPoint, sphereRadius, 32, lineColor, false, 2.f);
+			DrawDebugSphere(GetWorld(), hit.ImpactPoint, TraceRadius, 32, lineColor, false, 2.f);
 		}
-		
-		AActor* hitActor = hit.GetActor();
-		if (hitActor && hitActor->Implements<URogueGameplayInterface>()) {
-			IRogueGameplayInterface::Execute_Interact(hitActor, Cast<APawn>(owner));
+
+		AActor* HitActor = hit.GetActor();
+		if (HitActor && HitActor->Implements<URogueGameplayInterface>()) {
+			FocusedActor = HitActor;
 		}
 		break;
 	}
 
+	if (FocusedActor) {
+		if (DefaultWidgetInstance == nullptr && ensure(DefaultWidgetClass)) {
+			DefaultWidgetInstance = CreateWidget<URWorldUserWidget>(GetWorld(), DefaultWidgetClass);
+		}
+
+		if (DefaultWidgetInstance) {
+			DefaultWidgetInstance->AttachedActor = FocusedActor;
+			if (!DefaultWidgetInstance->IsInViewport()) {
+				DefaultWidgetInstance->AddToViewport();
+			}
+		}
+	} else {
+		if (DefaultWidgetInstance) {
+			DefaultWidgetInstance->RemoveFromParent();
+		}
+	}
+
 	if (bDebugDraw) {
 		DrawDebugLine(GetWorld(), eyeLocation, TraceEnd, lineColor, false, 5.f, 0, 2.f);
+	}
+}
+
+
+// Called every frame
+void URogueInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+                                               FActorComponentTickFunction* ThisTickFunction) {
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	FindBestInteractable();
+}
+
+void URogueInteractionComponent::PrimaryInteract() {
+	if (FocusedActor) {
+		IRogueGameplayInterface::Execute_Interact(FocusedActor, Cast<APawn>(GetOwner()));
+	} else {
+		UE_LOG(LogTemp, Error, TEXT("No focused actor to interact with"))
 	}
 }

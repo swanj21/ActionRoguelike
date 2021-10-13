@@ -12,7 +12,7 @@ void URActionComponent::BeginPlay() {
 	Super::BeginPlay();
 
 	for (TSubclassOf<URAction> ActionClass : DefaultActions) {
-		AddAction(ActionClass);
+		AddAction(GetOwner(), ActionClass);
 	}
 }
 
@@ -25,10 +25,24 @@ void URActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, DebugMessage);
 }
 
-void URActionComponent::AddAction(TSubclassOf<URAction> ActionClass) {
+void URActionComponent::AddAction(AActor* Instigator, TSubclassOf<URAction> ActionClass) {
 	if (!ensure(ActionClass)) { return; }
 	URAction* NewAction = NewObject<URAction>(this, ActionClass);
-	if (ensure(NewAction)) { Actions.Add(NewAction); }
+	if (ensure(NewAction)) {
+		Actions.Add(NewAction);
+
+		if (NewAction->bAutoStart && ensure(NewAction->CanStart(Instigator))) {
+			NewAction->StartAction(Instigator);
+		}
+	}
+}
+
+void URActionComponent::RemoveAction(URAction* ActionToRemove) {
+	if (ensure(ActionToRemove && !ActionToRemove->IsRunning())) {
+		return;
+	}
+
+	Actions.Remove(ActionToRemove);
 }
 
 bool URActionComponent::StartActionByName(AActor* Instigator, FName ActionName) {

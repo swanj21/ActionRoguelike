@@ -2,6 +2,36 @@
 
 ## Assignments
 
+----
+
+### Assignment 6
+**New Attributes & Buffs**  
+_Add new buffs_
+
+New 'Rage' attribute
+* Player receiving damage adds to its Rage value (RCharacter::OnHealthChanged)
+* Blackhole action costs x Rage to activate
+* Display current Rage on screen
+  * UMG UI for Rage amount
+* RageMax to clamp and for UI display with a bar
+
+'Thorns' buff
+* ActionEffect in c++ that deals a fraction of damage received back to attacker
+  * If you take 20 damage, reflect a % of that damage back to whoever initiated the attack
+  * Bind to OnHealthChanged of owner in StartAction(and don't forget to unbind [ .RemoveDynamic ] in StopAction)
+* Round the reflected damage to the nearest Integer
+* Infinite duration (Duration=0.0)
+* Don't reflect damage caused to yourself (Instigator == self ? Don't do it)
+
+Player spotted UMG widget
+* Derived from RWorldUserWidget
+* Show ! for a moment when minion sees player
+* Only show if Player is not already the TargetActor
+* Animate for nice pop-in
+
+New powerup to grant Actions on Interact
+* Only interactable if user does not have that Action yet
+* Grant Dash on Interact(remove Dash from default set of Player's Actions)
 
 ----
 ### Assignment 5
