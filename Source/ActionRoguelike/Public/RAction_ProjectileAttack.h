@@ -15,8 +15,9 @@ class ACTIONROGUELIKE_API URAction_ProjectileAttack : public URAction
 	GENERATED_BODY()
 
 	protected:
+	
 	UPROPERTY(EditAnywhere, Category="Attack")
-	TSubclassOf<AActor> PrimaryProjectileClass;
+	TSubclassOf<AActor> ProjectileClass;
 
 	UPROPERTY(EditAnywhere, Category="Attack")
 	class UAnimMontage* AttackAnimation;
@@ -32,9 +33,20 @@ class ACTIONROGUELIKE_API URAction_ProjectileAttack : public URAction
 
 	UFUNCTION()
 	void AttackDelay_Elapsed(ACharacter* InstigatorCharacter);
-	
+
+	FTimerHandle TimerHandle_AttackDelay;
+
 	public:
+	
 	URAction_ProjectileAttack();
 	
 	virtual void StartAction_Implementation(AActor* Instigator) override;
+
+	private:
+	
+	UFUNCTION()
+	void StartAnim(ACharacter* Character) const;
+	
+	UFUNCTION()
+	void SetTimer(ACharacter* Character);
 };

@@ -5,19 +5,23 @@
 
 #include "RogueGameModeBase.h"
 
-static TAutoConsoleVariable<float> CVarDamageModifier(TEXT("rogue.DamageMultiplier"), 1.f, TEXT("Global damage modifier for attribute component"), ECVF_Cheat);
+static TAutoConsoleVariable<float> CVarDamageModifier(
+	TEXT("rogue.DamageMultiplier"), 1.f, TEXT("Global damage modifier for attribute component"), ECVF_Cheat);
 
 // Sets default values for this component's properties
-URogueAttributeComponent::URogueAttributeComponent() {}
+URogueAttributeComponent::URogueAttributeComponent() {
+	Health = 100.f;
+	MaxHealth = 100.f;
 
-// -------------------- //
-// ------ HEALTH ------ //
-// -------------------- //
+	Rage = 0;
+	MaxRage = 100;
+}
+
 bool URogueAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta) {
 	if (!GetOwner()->CanBeDamaged() && Delta < 0.f) {
 		return false;
 	}
-	
+
 	if (Health == MaxHealth && Delta > 0.f) {
 		return false;
 	}
@@ -28,7 +32,7 @@ bool URogueAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float 
 		Delta *= DamageMultiplier;
 	}
 	float OldHealth = Health;
-	
+
 	Health += Delta;
 
 	Health = FMath::Clamp(Health, 0.f, MaxHealth);
@@ -42,9 +46,17 @@ bool URogueAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float 
 		ARogueGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ARogueGameModeBase>();
 		if (GameMode) {
 			GameMode->OnActorKilled(GetOwner(), InstigatorActor);
+			return true;
 		}
 	}
-	
+
+	// Rage calculation (Rage given = 1/5th of health lost)
+	const int32 RageToAdd = FMath::Abs(ActualDelta) / 5;
+	int32 OldRage = Rage;
+	Rage += RageToAdd;
+
+	OnRageChanged.Broadcast(InstigatorActor, this, Rage, Rage - OldRage);
+
 	return true;
 }
 
@@ -58,6 +70,23 @@ bool URogueAttributeComponent::IsLowHealth() const {
 
 bool URogueAttributeComponent::Kill(AActor* InstigatorActor) {
 	return ApplyHealthChange(InstigatorActor, -GetMaxHealth());
+}
+
+bool URogueAttributeComponent::ApplyRageChange(AActor* InstigatorActor, float Delta) {
+	if (Rage == MaxRage && Delta > 0.f) {
+		return false;
+	}
+
+	int32 OldRage = Rage;
+
+	Rage += Delta;
+	Rage = FMath::Clamp(Rage, 0, MaxRage);
+
+	int32 ActualDelta = Rage - OldRage;
+
+	OnRageChanged.Broadcast(InstigatorActor, this, Rage, ActualDelta);
+
+	return true;
 }
 
 // ----------------

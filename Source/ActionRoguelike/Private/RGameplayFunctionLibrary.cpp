@@ -41,7 +41,6 @@ bool URGameplayFunctionLibrary::TakeCredits(AController* From, float Amount/*, U
 }
 
 bool URGameplayFunctionLibrary::ModifyCredits(AController* Controller, float Amount) {
-	UE_LOG(LogTemp, Warning, TEXT("Modifying %f credits on %s"), Amount, *GetNameSafe(Controller))
 	if (!Controller) {
 		return false;
 	}

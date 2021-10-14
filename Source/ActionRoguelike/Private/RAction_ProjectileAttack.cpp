@@ -16,20 +16,13 @@ void URAction_ProjectileAttack::StartAction_Implementation(AActor* Instigator) {
 
 	ACharacter* Character = Cast<ACharacter>(Instigator);
 	if (Character) {
-		Character->PlayAnimMontage(AttackAnimation);
-
-		UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Character->GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
-
-		FTimerHandle TimerHandle_AttackDelay;
-		FTimerDelegate Delegate;
-		Delegate.BindUFunction(this, "AttackDelay_Elapsed", Character);
-
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackDelay, Delegate, AttackAnimDelay, false);
+		StartAnim(Character);
+		SetTimer(Character);
 	}
 }
 
 void URAction_ProjectileAttack::AttackDelay_Elapsed(ACharacter* InstigatorCharacter) {
-	if (ensureAlways(PrimaryProjectileClass)) {
+	if (ensureAlways(ProjectileClass)) {
 		FVector HandLocation = InstigatorCharacter->GetMesh()->GetSocketLocation(HandSocketName);
 		FActorSpawnParameters SpawnParameters;
 		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -60,8 +53,28 @@ void URAction_ProjectileAttack::AttackDelay_Elapsed(ACharacter* InstigatorCharac
 		FRotator ProjectileRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
 
 		FTransform SpawnTransform = FTransform(ProjectileRotation, HandLocation);
-		GetWorld()->SpawnActor<AActor>(PrimaryProjectileClass, SpawnTransform, SpawnParameters);
+		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTransform, SpawnParameters);
 	}
 
 	StopAction(InstigatorCharacter);
+}
+
+void URAction_ProjectileAttack::StartAnim(ACharacter* Character) const {
+	if (!ensure(Character)) {
+		return;
+	}
+	Character->PlayAnimMontage(AttackAnimation);
+
+	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Character->GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
+}
+
+void URAction_ProjectileAttack::SetTimer(ACharacter* Character) {
+	if (!ensure(Character)) {
+		return;
+	}
+
+	FTimerDelegate Delegate;
+	Delegate.BindUFunction(this, "AttackDelay_Elapsed", Character);
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackDelay, Delegate, AttackAnimDelay, false);
 }
