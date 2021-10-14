@@ -15,6 +15,8 @@ New 'Rage' attribute
   * UMG UI for Rage amount
 * RageMax to clamp and for UI display with a bar
 
+_COMPLETE_
+
 'Thorns' buff
 * ActionEffect in c++ that deals a fraction of damage received back to attacker
   * If you take 20 damage, reflect a % of that damage back to whoever initiated the attack
