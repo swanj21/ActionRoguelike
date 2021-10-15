@@ -23,6 +23,7 @@ _COMPLETE_
   * Bind to OnHealthChanged of owner in StartAction(and don't forget to unbind [ .RemoveDynamic ] in StopAction)
 * Round the reflected damage to the nearest Integer
 * Infinite duration (Duration=0.0)
+  * Also no periodic effect is needed
 * Don't reflect damage caused to yourself (Instigator == self ? Don't do it)
 
 Player spotted UMG widget
