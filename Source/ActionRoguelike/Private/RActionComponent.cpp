@@ -6,7 +6,9 @@
 #include "RAction.h"
 
 // Sets default values for this component's properties
-URActionComponent::URActionComponent() { PrimaryComponentTick.bCanEverTick = true; }
+URActionComponent::URActionComponent() {
+	PrimaryComponentTick.bCanEverTick = true;
+}
 
 void URActionComponent::BeginPlay() {
 	Super::BeginPlay();
@@ -22,16 +24,28 @@ void URActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void URActionComponent::AddAction(AActor* Instigator, TSubclassOf<URAction> ActionClass) {
-	if (!ensure(ActionClass)) { return; }
+bool URActionComponent::AddAction(AActor* Instigator, TSubclassOf<URAction> ActionClass) {
+	if (!ensure(ActionClass)) {
+		return false;
+	}
 	URAction* NewAction = NewObject<URAction>(this, ActionClass);
-	if (ensure(NewAction)) {
-		Actions.Add(NewAction);
+	if (!ensure(NewAction)) {
+		return false;
+	}
 
-		if (NewAction->bAutoStart && ensure(NewAction->CanStart(Instigator))) {
-			NewAction->StartAction(Instigator);
+	for (URAction* Action : Actions) {
+		if (Action->ActionName.IsEqual(NewAction->ActionName)) {
+			return false;
 		}
 	}
+
+	Actions.Add(NewAction);
+
+	if (NewAction->bAutoStart && ensure(NewAction->CanStart(Instigator))) {
+		NewAction->StartAction(Instigator);
+	}
+	
+	return true;
 }
 
 void URActionComponent::RemoveAction(URAction* ActionToRemove) {

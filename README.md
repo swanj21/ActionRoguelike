@@ -15,8 +15,6 @@ New 'Rage' attribute
   * UMG UI for Rage amount
 * RageMax to clamp and for UI display with a bar
 
-_COMPLETE_
-
 'Thorns' buff
 * ActionEffect in c++ that deals a fraction of damage received back to attacker
   * If you take 20 damage, reflect a % of that damage back to whoever initiated the attack
@@ -26,19 +24,17 @@ _COMPLETE_
   * Also no periodic effect is needed
 * Don't reflect damage caused to yourself (Instigator == self ? Don't do it)
 
-_COMPLETE_
-
 Player spotted UMG widget
 * Derived from RWorldUserWidget
 * Show ! for a moment when minion sees player
 * Only show if Player is not already the TargetActor
 * Animate for nice pop-in
 
-_COMPLETE_
-
 New powerup to grant Actions on Interact
 * Only interactable if user does not have that Action yet
 * Grant Dash on Interact(remove Dash from default set of Player's Actions)
+
+_COMPLETE_
 
 ----
 ### Assignment 5

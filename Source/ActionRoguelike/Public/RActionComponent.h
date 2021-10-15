@@ -20,7 +20,7 @@ public:
 	FGameplayTagContainer ActiveGameplayTags;
 
 	UFUNCTION(BlueprintCallable, Category="Actions")
-	void AddAction(AActor* Instigator, TSubclassOf<class URAction> ActionClass);
+	bool AddAction(AActor* Instigator, TSubclassOf<class URAction> ActionClass);
 
 	UFUNCTION(BlueprintCallable, Category="Actions")
 	void RemoveAction(URAction* ActionToRemove);
@@ -34,15 +34,13 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Actions")
 	TArray<class URAction*> Actions;
 
 	/* Abilities given at game start */
-	UPROPERTY(EditAnywhere, Category="Actions")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Actions")
 	TArray<TSubclassOf<URAction>> DefaultActions;
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-		
 };
