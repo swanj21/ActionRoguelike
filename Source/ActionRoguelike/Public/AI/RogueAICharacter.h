@@ -36,6 +36,18 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category="UI")
 	class URWorldUserWidget* ActiveHealthBar;
 
+	UPROPERTY(EditDefaultsOnly, Category="UI")
+	TSubclassOf<class UUserWidget> SpottedWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly, Category="UI")
+	class URWorldUserWidget* ActiveSpottedWidget;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="UI")
+	float SpottedDisplayTime;
+
+	UFUNCTION()
+	void OnSpottedTimerFinished();
+
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
 

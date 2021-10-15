@@ -32,6 +32,7 @@ ARogueAICharacter::ARogueAICharacter()
 	GetMesh()->SetGenerateOverlapEvents(true);
 
 	CreditsToGive = 10.f;
+	SpottedDisplayTime = 2.f;
 	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
@@ -45,6 +46,7 @@ void ARogueAICharacter::PostInitializeComponents() {
 
 void ARogueAICharacter::OnPawnSeen(APawn* Pawn) {
 	SetTargetActor(Pawn);
+	
 	DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.f, true);
 }
 
@@ -79,7 +81,6 @@ void ARogueAICharacter::OnHealthChanged(AActor* InstigatorActor, URogueAttribute
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			GetCharacterMovement()->DisableMovement();
 
-			UE_LOG(LogTemp, Warning, TEXT("Giving %f credits to %s because of kill"), CreditsToGive, *GetNameSafe(InstigatorActor))
 			URGameplayFunctionLibrary::GiveCredits(InstigatorActor->GetInstigatorController(), CreditsToGive);
 
 			SetLifeSpan(10.f);
@@ -92,6 +93,27 @@ void ARogueAICharacter::SetTargetActor(AActor* NewTarget) {
 	if (AIController) {
 		UBlackboardComponent* BlackboardComponent = AIController->GetBlackboardComponent();
 
-		BlackboardComponent->SetValueAsObject("TargetActor", NewTarget);
+		AActor* CurrentTarget = Cast<AActor>(BlackboardComponent->GetValueAsObject("TargetActor"));
+		if (CurrentTarget != NewTarget) {
+			BlackboardComponent->SetValueAsObject("TargetActor", NewTarget);
+			// Create the player spotted widget and set a timer to destroy it
+			if (!ActiveSpottedWidget) {
+				ActiveSpottedWidget = CreateWidget<URWorldUserWidget>(GetWorld(), SpottedWidgetClass);
+				if (ActiveSpottedWidget) {
+					ActiveSpottedWidget->AttachedActor = this;
+					ActiveSpottedWidget->AddToViewport();
+					
+					FTimerHandle TimerHandle;
+					GetWorldTimerManager().SetTimer(TimerHandle, this, &ARogueAICharacter::OnSpottedTimerFinished, SpottedDisplayTime);
+				}
+			}
+		}
+	}
+}
+
+void ARogueAICharacter::OnSpottedTimerFinished() {
+	if (ActiveSpottedWidget) {
+		ActiveSpottedWidget->RemoveFromParent();
+		ActiveSpottedWidget = nullptr;
 	}
 }

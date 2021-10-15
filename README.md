@@ -34,6 +34,8 @@ Player spotted UMG widget
 * Only show if Player is not already the TargetActor
 * Animate for nice pop-in
 
+_COMPLETE_
+
 New powerup to grant Actions on Interact
 * Only interactable if user does not have that Action yet
 * Grant Dash on Interact(remove Dash from default set of Player's Actions)

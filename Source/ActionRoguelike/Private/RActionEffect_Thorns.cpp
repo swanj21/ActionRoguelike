@@ -31,7 +31,7 @@ void URActionEffect_Thorns::StopAction_Implementation(AActor* Instigator) {
 
 void URActionEffect_Thorns::DamageInstigator(AActor* InstigatorActor, URogueAttributeComponent* OwningComponent, float NewHealth, float Delta) {
 	if (InstigatorActor != OwningComponent->GetOwner()) {
-		int32 DamageToReflect = FMath::Abs(Delta) * PercentDamageToReflect;
+		int32 DamageToReflect = FMath::Abs(Delta) * (PercentDamageToReflect / 100.f);
 		
 		URGameplayFunctionLibrary::ApplyDamage(OwningComponent->GetOwner(), InstigatorActor, DamageToReflect);
 	}
