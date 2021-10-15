@@ -26,6 +26,8 @@ _COMPLETE_
   * Also no periodic effect is needed
 * Don't reflect damage caused to yourself (Instigator == self ? Don't do it)
 
+_COMPLETE_
+
 Player spotted UMG widget
 * Derived from RWorldUserWidget
 * Show ! for a moment when minion sees player
