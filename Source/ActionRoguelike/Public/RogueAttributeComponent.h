@@ -6,8 +6,12 @@
 #include "Components/ActorComponent.h"
 #include "RogueAttributeComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, InstigatorActor, class URogueAttributeComponent*, OwningComponent, float, NewHealth, float, Delta);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnRageChanged, AActor*, InstigatorActor, URogueAttributeComponent*, OwningComponent, float, NewRage, float, Delta);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, InstigatorActor,
+                                              class URogueAttributeComponent*, OwningComponent, float, NewHealth, float,
+                                              Delta);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnRageChanged, AActor*, InstigatorActor, URogueAttributeComponent*,
+                                              OwningComponent, float, NewRage, float, Delta);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ACTIONROGUELIKE_API URogueAttributeComponent : public UActorComponent {
@@ -19,12 +23,11 @@ public:
 	// -------------------- //
 	// ------ HEALTH ------ //
 	// -------------------- //
-	protected:
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health")
+protected:
+	UPROPERTY(EditDefaultsOnly, Replicated, BlueprintReadOnly, Category="Health")
 	float Health;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Health")
+	UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Health")
 	float MaxHealth;
 
 	/**
@@ -32,9 +35,11 @@ public:
 	*/
 	UPROPERTY(EditAnywhere, Category="Health")
 	float LowHealthThreshold;
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastHealthChanged(AActor* InstigatorActor, float NewHealth, float Delta);
 
-	public:
-
+public:
 	UFUNCTION(BlueprintCallable, Category="Health")
 	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
 
@@ -48,10 +53,14 @@ public:
 	bool IsLowHealth() const;
 
 	UFUNCTION(BlueprintCallable, Category="Health")
-	float GetHealth() { return Health; }
+	float GetHealth() {
+		return Health;
+	}
 
 	UFUNCTION(BlueprintCallable, Category="Health")
-	float GetMaxHealth() { return MaxHealth; }
+	float GetMaxHealth() {
+		return MaxHealth;
+	}
 
 	UFUNCTION(BlueprintCallable, Category="Health")
 	bool Kill(AActor* InstigatorActor);
@@ -66,10 +75,14 @@ public:
 	int32 MaxRage;
 
 	UFUNCTION(BlueprintCallable, Category="Rage")
-	int32 GetRage() { return Rage; }
+	int32 GetRage() {
+		return Rage;
+	}
 
 	UFUNCTION(BlueprintCallable, Category="Rage")
-	int32 GetMaxRage() { return MaxRage; }
+	int32 GetMaxRage() {
+		return MaxRage;
+	}
 
 	UFUNCTION(BlueprintCallable, Category="Rage")
 	bool ApplyRageChange(AActor* InstigatorActor, float Delta);
@@ -80,7 +93,7 @@ public:
 	// -------------------- //
 	// ------ STATIC ------ //
 	// -------------------- //
-	public:
+public:
 	UFUNCTION(BlueprintCallable, Category="Attributes")
 	static URogueAttributeComponent* GetAttributes(AActor* FromActor);
 

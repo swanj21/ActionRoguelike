@@ -30,9 +30,13 @@ void URActionEffect_Thorns::StopAction_Implementation(AActor* Instigator) {
 }
 
 void URActionEffect_Thorns::DamageInstigator(AActor* InstigatorActor, URogueAttributeComponent* OwningComponent, float NewHealth, float Delta) {
+	if (bIsActivating) {
+		return;
+	}
 	if (InstigatorActor != OwningComponent->GetOwner()) {
 		int32 DamageToReflect = FMath::Abs(Delta) * (PercentDamageToReflect / 100.f);
-		
+		bIsActivating = true;
 		URGameplayFunctionLibrary::ApplyDamage(OwningComponent->GetOwner(), InstigatorActor, DamageToReflect);
+		bIsActivating = false;
 	}
 }

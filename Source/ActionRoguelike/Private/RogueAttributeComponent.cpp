@@ -4,6 +4,7 @@
 #include "RogueAttributeComponent.h"
 
 #include "RogueGameModeBase.h"
+#include "Net/UnrealNetwork.h"
 
 static TAutoConsoleVariable<float> CVarDamageModifier(
 	TEXT("rogue.DamageMultiplier"), 1.f, TEXT("Global damage modifier for attribute component"), ECVF_Cheat);
@@ -15,6 +16,13 @@ URogueAttributeComponent::URogueAttributeComponent() {
 
 	Rage = 0;
 	MaxRage = 100;
+
+	SetIsReplicatedByDefault(true);
+}
+
+void URogueAttributeComponent::MulticastHealthChanged_Implementation(AActor* InstigatorActor, float NewHealth,
+	float Delta) {
+	OnHealthChanged.Broadcast(InstigatorActor, this, NewHealth, Delta);
 }
 
 bool URogueAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta) {
@@ -39,8 +47,11 @@ bool URogueAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float 
 
 	float ActualDelta = Health - OldHealth;
 
-	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
-
+	// OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
+	if (ActualDelta != 0.f) {
+		MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
+	}
+	
 	// Died
 	if (ActualDelta < 0.f && Health <= 0.f) {
 		ARogueGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ARogueGameModeBase>();
@@ -107,4 +118,13 @@ bool URogueAttributeComponent::IsActorAlive(AActor* Actor) {
 		}
 	}
 	return false;
+}
+
+void URogueAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(URogueAttributeComponent, Health);
+	// DOREPLIFETIME(URogueAttributeComponent, MaxHealth);
+
+	DOREPLIFETIME_CONDITION(URogueAttributeComponent, MaxHealth, COND_OwnerOnly);
 }

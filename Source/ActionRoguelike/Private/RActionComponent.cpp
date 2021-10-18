@@ -8,6 +8,8 @@
 // Sets default values for this component's properties
 URActionComponent::URActionComponent() {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	SetIsReplicatedByDefault(true);
 }
 
 void URActionComponent::BeginPlay() {
@@ -17,7 +19,6 @@ void URActionComponent::BeginPlay() {
 		AddAction(GetOwner(), ActionClass);
 	}
 }
-
 
 void URActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                       FActorComponentTickFunction* ThisTickFunction) {
@@ -62,6 +63,12 @@ bool URActionComponent::StartActionByName(AActor* Instigator, FName ActionName) 
 			if (!Action->CanStart(Instigator)) {
 				continue;
 			}
+
+			// Is client
+			if (!GetOwner()->HasAuthority()) {
+				ServerStartAction(Instigator, ActionName);
+			}
+			
 			Action->StartAction(Instigator);
 			return true;
 		}
@@ -79,4 +86,8 @@ bool URActionComponent::StopActionByName(AActor* Instigator, FName ActionName) {
 		}
 	}
 	return false;
+}
+
+void URActionComponent::ServerStartAction_Implementation(AActor* Instigator, FName ActionName) {
+	StartActionByName(Instigator, ActionName);
 }

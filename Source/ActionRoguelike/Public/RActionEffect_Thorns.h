@@ -27,5 +27,8 @@ class ACTIONROGUELIKE_API URActionEffect_Thorns : public URActionEffect
 
 	private:
 	UFUNCTION(BlueprintCallable, Category="Damage")
-	void DamageInstigator(AActor* InstigatorActor, class URogueAttributeComponent* OwningComponent, float NewHealth, float Delta);	
+	void DamageInstigator(AActor* InstigatorActor, class URogueAttributeComponent* OwningComponent, float NewHealth, float Delta);
+
+	UPROPERTY()
+	bool bIsActivating;
 };

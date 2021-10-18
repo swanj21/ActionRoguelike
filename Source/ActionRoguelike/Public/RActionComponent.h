@@ -34,6 +34,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION(Server, Reliable)
+	void ServerStartAction(AActor* Instigator, FName ActionName);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Actions")
 	TArray<class URAction*> Actions;
 
