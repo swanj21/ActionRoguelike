@@ -22,6 +22,13 @@ public:
 	float TargetPitch;
 
 protected:
+
+	UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly) // AKA: RepNotify
+	bool bIsLidOpened;
+
+	UFUNCTION()
+	void OnRep_LidOpened();
+	
 	UPROPERTY(VisibleAnywhere, Category = "Mesh")
 	UStaticMeshComponent* BaseMesh;
 

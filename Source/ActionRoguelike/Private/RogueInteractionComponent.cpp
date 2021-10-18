@@ -93,12 +93,19 @@ void URogueInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickT
                                                FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FindBestInteractable();
+	APawn* LocalPawn = Cast<APawn>(GetOwner());
+	if (LocalPawn->IsLocallyControlled()) {
+		FindBestInteractable();
+	}
 }
 
 void URogueInteractionComponent::PrimaryInteract() {
-	if (FocusedActor) {
-		IRogueGameplayInterface::Execute_Interact(FocusedActor, Cast<APawn>(GetOwner()));
+	ServerInteract(FocusedActor);
+}
+
+void URogueInteractionComponent::ServerInteract_Implementation(AActor* ActorInFocus) {
+	if (ActorInFocus) {
+		IRogueGameplayInterface::Execute_Interact(ActorInFocus, Cast<APawn>(GetOwner()));
 	} else {
 		UE_LOG(LogTemp, Error, TEXT("No focused actor to interact with"))
 	}

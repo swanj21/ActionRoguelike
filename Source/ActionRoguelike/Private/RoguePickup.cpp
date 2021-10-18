@@ -13,6 +13,9 @@ ARoguePickup::ARoguePickup()
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Static Mesh");
 	RootComponent = StaticMeshComponent;
 
+	RespawnTimer = 10.f;
+
+	SetReplicates(true);
 }
 
 // Called when the game starts or when spawned

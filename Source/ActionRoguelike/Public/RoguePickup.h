@@ -31,7 +31,7 @@ protected:
 	FTimerHandle EnableItemTimerHandle;
 
 	UPROPERTY(EditAnywhere, Category="Timer")
-	float RespawnTimer = 10.f;
+	float RespawnTimer;
 
 	UFUNCTION(BlueprintCallable, Category="Activation")
 	virtual void DisableItem();

@@ -3,6 +3,8 @@
 
 #include "RogueItemChest.h"
 
+#include "Net/UnrealNetwork.h"
+
 // Sets default values
 ARogueItemChest::ARogueItemChest()
 {
@@ -16,8 +18,23 @@ ARogueItemChest::ARogueItemChest()
 	LidMesh->SetupAttachment(BaseMesh);
 
 	TargetPitch = 100;
+
+	SetReplicates(true);
 }
 
 void ARogueItemChest::Interact_Implementation(APawn* InstigatorPawn) {
-	LidMesh->SetRelativeRotation(FRotator(TargetPitch, 0.f, 0.f));
+	bIsLidOpened = !bIsLidOpened;
+	// Needs to be manually called on the server, automatically called for the client
+	OnRep_LidOpened();
+}
+
+void ARogueItemChest::OnRep_LidOpened() {
+	float CurPitch = bIsLidOpened ? TargetPitch : 0.f;
+	LidMesh->SetRelativeRotation(FRotator(CurPitch, 0.f, 0.f));
+}
+
+void ARogueItemChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ARogueItemChest, bIsLidOpened);
 }

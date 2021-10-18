@@ -22,7 +22,11 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	UFUNCTION(Server, Reliable)
+	void ServerInteract(AActor* ActorInFocus);
+
 	void FindBestInteractable();
+	
 
 	UPROPERTY()
 	AActor* FocusedActor;
