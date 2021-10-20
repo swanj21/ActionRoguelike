@@ -36,7 +36,10 @@ void URActionEffect_Thorns::DamageInstigator(AActor* InstigatorActor, URogueAttr
 	if (InstigatorActor != OwningComponent->GetOwner()) {
 		int32 DamageToReflect = FMath::Abs(Delta) * (PercentDamageToReflect / 100.f);
 		bIsActivating = true;
-		URGameplayFunctionLibrary::ApplyDamage(OwningComponent->GetOwner(), InstigatorActor, DamageToReflect);
+		if (DamageToReflect != 0) {
+			URGameplayFunctionLibrary::ApplyDamage(OwningComponent->GetOwner(), InstigatorActor, DamageToReflect);
+		}
+
 		bIsActivating = false;
 	}
 }

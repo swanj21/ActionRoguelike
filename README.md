@@ -4,6 +4,20 @@
 
 ----
 
+### Assignment 7
+**Multiplayer**  
+_Replication replication replication_
+
+* Replicate 'credits' in PlayerState
+* Powerup Actor be functional in multiplayer (Potion & Coin)
+  * Sync state (visibility and collision)
+  * Note: Only the SERVER changes credits & health(should already be happening)
+* Replicate 'Rage' attribute
+  * Add/remove rage only on server-side
+* BONUS: The spotted widget should be replicated to show up on clients
+  * Note: OnPawnSeen() only triggers on server
+  * Tip: Use NetMulticast RPC to instantiate widget on clients
+
 ### Assignment 6
 **New Attributes & Buffs**  
 _Add new buffs_
