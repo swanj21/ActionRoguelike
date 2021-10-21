@@ -37,7 +37,7 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerStartAction(AActor* Instigator, FName ActionName);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Actions")
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category="Actions")
 	TArray<class URAction*> Actions;
 
 	/* Abilities given at game start */
@@ -46,4 +46,6 @@ protected:
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 };

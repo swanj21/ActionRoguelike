@@ -4,6 +4,9 @@
 #include "RActionComponent.h"
 
 #include "RAction.h"
+#include "ActionRoguelike/ActionRoguelike.h"
+#include "Engine/ActorChannel.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 URActionComponent::URActionComponent() {
@@ -15,24 +18,42 @@ URActionComponent::URActionComponent() {
 void URActionComponent::BeginPlay() {
 	Super::BeginPlay();
 
-	for (TSubclassOf<URAction> ActionClass : DefaultActions) {
-		AddAction(GetOwner(), ActionClass);
+	// Server only
+	if (GetOwner()->HasAuthority()) {
+		for (TSubclassOf<URAction> ActionClass : DefaultActions) {
+			AddAction(GetOwner(), ActionClass);
+		}
 	}
 }
 
 void URActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                       FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// Draw all actions
+	for (URAction* Action : Actions) {
+		FColor TextColor = Action->IsRunning() ? FColor::Blue : FColor::White;
+
+		FString ActionMessage = FString::Printf(TEXT("[%s] Action: %s - IsRunning: %s - Outer: %s"),
+			*GetNameSafe(GetOwner()),
+			*Action->ActionName.ToString(),
+			Action->IsRunning() ? TEXT("true") : TEXT("false"),
+			*GetNameSafe(GetOuter()));
+
+		LogOnScreen(this, ActionMessage, TextColor, 0.f);
+	}
 }
 
 bool URActionComponent::AddAction(AActor* Instigator, TSubclassOf<URAction> ActionClass) {
 	if (!ensure(ActionClass)) {
 		return false;
 	}
-	URAction* NewAction = NewObject<URAction>(this, ActionClass);
+	URAction* NewAction = NewObject<URAction>(GetOwner(), ActionClass);
 	if (!ensure(NewAction)) {
 		return false;
 	}
+
+	NewAction->Initialize(this);
 
 	for (URAction* Action : Actions) {
 		if (Action->ActionName.IsEqual(NewAction->ActionName)) {
@@ -90,4 +111,23 @@ bool URActionComponent::StopActionByName(AActor* Instigator, FName ActionName) {
 
 void URActionComponent::ServerStartAction_Implementation(AActor* Instigator, FName ActionName) {
 	StartActionByName(Instigator, ActionName);
+}
+
+bool URActionComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) {
+	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+	for (URAction* Action : Actions) {
+		if (Action) {
+			// Bitwise OR
+			WroteSomething |= Channel->ReplicateSubobject(Action, *Bunch, *RepFlags);
+		}
+	}
+
+	return WroteSomething;
+}
+
+void URActionComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(URActionComponent, Actions);
 }

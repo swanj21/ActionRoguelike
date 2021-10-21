@@ -17,6 +17,8 @@ class ACTIONROGUELIKE_API URAction : public UObject
 public:
 	URAction();
 
+	void Initialize(class URActionComponent* NewActionComponent);
+
 	// Action nickname to start/stop without a reference to the object
 	UPROPERTY(EditDefaultsOnly, Category="Action")
 	FName ActionName;
@@ -39,15 +41,26 @@ public:
 
 	UWorld* GetWorld() const override;
 
-	protected:
+	/* Need to set this to true so this UObject can be replicated over the network */
+	bool IsSupportedForNetworking() const override { return true; }
+	
+protected:
+
+	UPROPERTY(Replicated)
+	URActionComponent* ActionComp;
+	
+	UFUNCTION(BlueprintCallable, Category="Action")
+	URActionComponent* GetOwningComponent() const;
+
 	UPROPERTY(EditDefaultsOnly, Category="Tags")
 	FGameplayTagContainer GrantedTags;
 
 	UPROPERTY(EditDefaultsOnly, Category="Tags")
 	FGameplayTagContainer BlockedTags;
 
-	UFUNCTION(BlueprintCallable, Category="Action")
-	class URActionComponent* GetOwningComponent() const;
-
+	UPROPERTY(ReplicatedUsing="OnRep_IsRunning")
 	bool bIsRunning;
+
+	UFUNCTION()
+	void OnRep_IsRunning();
 };

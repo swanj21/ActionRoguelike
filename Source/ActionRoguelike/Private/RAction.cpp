@@ -4,27 +4,30 @@
 #include "RAction.h"
 
 #include "RActionComponent.h"
+#include "ActionRoguelike/ActionRoguelike.h"
+#include "Net/UnrealNetwork.h"
 
 URAction::URAction() {
 	
 }
 
-void URAction::StartAction_Implementation(AActor* Instigator) {
-	UE_LOG(LogTemp, Warning, TEXT("Running %s"), *GetNameSafe(this))
+void URAction::Initialize(URActionComponent* NewActionComponent) {
+	ActionComp = NewActionComponent;
+}
 
-	URActionComponent* ActionComponent = GetOwningComponent();
-	ActionComponent->ActiveGameplayTags.AppendTags(GrantedTags);
+void URAction::StartAction_Implementation(AActor* Instigator) {
+	LogOnScreen(this, FString::Printf(TEXT("Started %s"), *ActionName.ToString()), FColor::Green);
+	URActionComponent* NewActionComp = GetOwningComponent();
+	NewActionComp->ActiveGameplayTags.AppendTags(GrantedTags);
 
 	bIsRunning = true;
 }
 
 void URAction::StopAction_Implementation(AActor* Instigator) {
-	UE_LOG(LogTemp, Warning, TEXT("Stopping %s"), *GetNameSafe(this))
+	LogOnScreen(this, FString::Printf(TEXT("Stopped %s"), *ActionName.ToString()), FColor::Green);
 
-	ensureAlways(bIsRunning);
-
-	URActionComponent* ActionComponent = GetOwningComponent();
-	ActionComponent->ActiveGameplayTags.RemoveTags(GrantedTags);
+	URActionComponent* NewActionComp = GetOwningComponent();
+	NewActionComp->ActiveGameplayTags.RemoveTags(GrantedTags);
 
 	bIsRunning = false;
 }
@@ -33,9 +36,9 @@ bool URAction::CanStart_Implementation(AActor* Instigator) {
 	if (IsRunning()) {
 		return false;
 	}
-	URActionComponent* ActionComponent = GetOwningComponent();
+	URActionComponent* NewActionComp = GetOwningComponent();
 
-	if (ActionComponent->ActiveGameplayTags.HasAny(BlockedTags)) {
+	if (NewActionComp->ActiveGameplayTags.HasAny(BlockedTags)) {
 		return false;
 	}
 
@@ -48,13 +51,30 @@ bool URAction::IsRunning() const {
 
 UWorld* URAction::GetWorld() const {
 	// Outer has been set through the new object
-	UActorComponent* Comp = Cast<UActorComponent>(GetOuter());
-	if (Comp) {
-		return Comp->GetWorld();
+	AActor* Actor = Cast<AActor>(GetOuter());
+	if (Actor) {
+		return Actor->GetWorld();
 	}
 	return nullptr;
 }
 
 URActionComponent* URAction::GetOwningComponent() const {
-	return Cast<URActionComponent>(GetOuter());
+	return ActionComp;
+}
+
+void URAction::OnRep_IsRunning() {
+	// Server says "Hey I'm running, please start."
+	if (bIsRunning) {
+		StartAction(nullptr);
+	} else {
+		StopAction(nullptr);
+	}
+}
+
+void URAction::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(URAction, ActionComp);
+	DOREPLIFETIME(URAction, bIsRunning);
 }
