@@ -20,7 +20,8 @@ void URAction::StartAction_Implementation(AActor* Instigator) {
 	URActionComponent* NewActionComp = GetOwningComponent();
 	NewActionComp->ActiveGameplayTags.AppendTags(GrantedTags);
 
-	bIsRunning = true;
+	RepData.bIsRunning = true;
+	RepData.Instigator = Instigator;
 }
 
 void URAction::StopAction_Implementation(AActor* Instigator) {
@@ -29,7 +30,8 @@ void URAction::StopAction_Implementation(AActor* Instigator) {
 	URActionComponent* NewActionComp = GetOwningComponent();
 	NewActionComp->ActiveGameplayTags.RemoveTags(GrantedTags);
 
-	bIsRunning = false;
+	RepData.bIsRunning = false;
+	RepData.Instigator = Instigator;
 }
 
 bool URAction::CanStart_Implementation(AActor* Instigator) {
@@ -46,7 +48,7 @@ bool URAction::CanStart_Implementation(AActor* Instigator) {
 }
 
 bool URAction::IsRunning() const {
-	return bIsRunning;
+	return RepData.bIsRunning;
 }
 
 UWorld* URAction::GetWorld() const {
@@ -62,12 +64,12 @@ URActionComponent* URAction::GetOwningComponent() const {
 	return ActionComp;
 }
 
-void URAction::OnRep_IsRunning() {
+void URAction::OnRep_RepData() {
 	// Server says "Hey I'm running, please start."
-	if (bIsRunning) {
-		StartAction(nullptr);
+	if (RepData.bIsRunning) {
+		StartAction(RepData.Instigator);
 	} else {
-		StopAction(nullptr);
+		StopAction(RepData.Instigator);
 	}
 }
 
@@ -76,5 +78,5 @@ void URAction::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifet
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(URAction, ActionComp);
-	DOREPLIFETIME(URAction, bIsRunning);
+	DOREPLIFETIME(URAction, RepData);
 }

@@ -17,7 +17,9 @@ void URAction_ProjectileAttack::StartAction_Implementation(AActor* Instigator) {
 	ACharacter* Character = Cast<ACharacter>(Instigator);
 	if (Character) {
 		StartAnim(Character);
-		SetTimer(Character);
+		if (Character->HasAuthority()) {
+			SetTimer(Character);
+		}
 	}
 }
 

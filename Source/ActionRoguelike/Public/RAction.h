@@ -6,6 +6,18 @@
 #include "GameplayTagContainer.h"
 #include "RAction.generated.h"
 
+USTRUCT()
+struct FActionRepData {
+	GENERATED_BODY()
+
+public:
+	// Struct variables are replicated by default, need to annotate with NotReplicated if you do not want it to replicate.
+	UPROPERTY()
+	bool bIsRunning;
+
+	UPROPERTY()
+	AActor* Instigator;
+};
 /**
  * 
  */
@@ -58,9 +70,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Tags")
 	FGameplayTagContainer BlockedTags;
 
-	UPROPERTY(ReplicatedUsing="OnRep_IsRunning")
-	bool bIsRunning;
+	UPROPERTY(ReplicatedUsing="OnRep_RepData")
+	FActionRepData RepData;
+	//bool bIsRunning;
 
 	UFUNCTION()
-	void OnRep_IsRunning();
+	void OnRep_RepData();
 };

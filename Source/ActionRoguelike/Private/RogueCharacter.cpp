@@ -116,6 +116,7 @@ void ARogueCharacter::OnHealthChanged(AActor* InstigatorActor, class URogueAttri
 	if (NewHealth <= 0.f && Delta <= 0.f) {
 		APlayerController* PlayerController = Cast<APlayerController>(GetController());
 		DisableInput(PlayerController);
+		SetLifeSpan(5.f);
 	}
 }
 

@@ -55,7 +55,7 @@ void ARogueMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedCompon
 		HitActor = OtherActor;
 		if (!IsPendingKill() &&
 			URGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult)) {
-			if (ActionComponent) {
+			if (ActionComponent && HasAuthority()) {
 				ActionComponent->AddAction(GetInstigator(), BurningActionClass);
 			}
 			Destroy();

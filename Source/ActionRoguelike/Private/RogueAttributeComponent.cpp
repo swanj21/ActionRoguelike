@@ -40,33 +40,33 @@ bool URogueAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float 
 		Delta *= DamageMultiplier;
 	}
 	float OldHealth = Health;
+	float NewHealth = FMath::Clamp(Health + Delta, 0.f, MaxHealth);
 
-	Health += Delta;
+	float ActualDelta = NewHealth - OldHealth;
 
-	Health = FMath::Clamp(Health, 0.f, MaxHealth);
+	if (GetOwner()->HasAuthority()) {
+		Health = NewHealth;
+		if (ActualDelta != 0.f) {
+			MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
+		}
 
-	float ActualDelta = Health - OldHealth;
+		// Died
+		if (ActualDelta < 0.f && Health <= 0.f) {
+			ARogueGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ARogueGameModeBase>();
+			if (GameMode) {
+				GameMode->OnActorKilled(GetOwner(), InstigatorActor);
+				return true;
+			}
+		}
 
-	if (ActualDelta != 0.f) {
-		MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
+		// Rage calculation (Rage given = 1/5th of health lost) - Hardcoded for now
+		const int32 RageToAdd = FMath::Abs(ActualDelta) / 5;
+		int32 OldRage = Rage;
+		Rage += RageToAdd;
+
+		MulticastRageChanged(InstigatorActor, Rage - OldRage);
 	}
 	
-	// Died
-	if (ActualDelta < 0.f && Health <= 0.f) {
-		ARogueGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ARogueGameModeBase>();
-		if (GameMode) {
-			GameMode->OnActorKilled(GetOwner(), InstigatorActor);
-			return true;
-		}
-	}
-
-	// Rage calculation (Rage given = 1/5th of health lost)
-	const int32 RageToAdd = FMath::Abs(ActualDelta) / 5;
-	int32 OldRage = Rage;
-	Rage += RageToAdd;
-
-	MulticastRageChanged(InstigatorActor, Rage - OldRage);
-
 	return true;
 }
 
