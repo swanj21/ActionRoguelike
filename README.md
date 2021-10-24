@@ -9,23 +9,20 @@
 _Replication replication replication_
 
 * Replicate 'credits' in PlayerState  
-
-_COMPLETE_ - However, for the client the credit amount in UI does not update
+  * Bug: For the client, the credit amount in UI does not update
 
 * Powerup Actor be functional in multiplayer (Potion & Coin)
   * Sync state (visibility and collision)
   * Note: Only the SERVER changes credits & health(should already be happening)  
 
-_COMPLETE_
-
 * Replicate 'Rage' attribute
   * Add/remove rage only on server-side
-
-_COMPLETE_
 
 * BONUS: The spotted widget should be replicated to show up on clients
   * Note: OnPawnSeen() only triggers on server
   * Tip: Use NetMulticast RPC to instantiate widget on clients
+
+_COMPLETE_
 
 ### Assignment 6
 **New Attributes & Buffs**  
