@@ -11,15 +11,28 @@
  * 
  */
 UCLASS()
-class ACTIONROGUELIKE_API ARogueGameModeBase : public AGameModeBase
-{
+class ACTIONROGUELIKE_API ARogueGameModeBase : public AGameModeBase {
 	GENERATED_BODY()
 
-	public:
+public:
 	ARogueGameModeBase();
+	
 	virtual void StartPlay() override;
 
-	protected:
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
+	UFUNCTION(BlueprintCallable, Category="SaveGame")
+	void WriteSaveGame();
+
+	void LoadSaveGame();
+
+	void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
+	
+protected:
+	FString SlotName;
+	
+	UPROPERTY()
+	class URSaveGame* CurrentSaveGame;
 	
 	UPROPERTY(EditDefaultsOnly, Category="AI")
 	TSubclassOf<AActor> MinionClass;
@@ -29,7 +42,7 @@ class ACTIONROGUELIKE_API ARogueGameModeBase : public AGameModeBase
 
 	UPROPERTY(EditDefaultsOnly, Category="Pickup")
 	TSubclassOf<AActor> HealthPotionClass;
-	
+
 	FTimerHandle TimerHandle_SpawnBots;
 
 	UPROPERTY(EditDefaultsOnly, Category="AI")
@@ -70,26 +83,26 @@ class ACTIONROGUELIKE_API ARogueGameModeBase : public AGameModeBase
 
 	UFUNCTION()
 	void OnMinionSpawnQueryComplete(class UEnvQueryInstanceBlueprintWrapper* QueryInstance,
-		EEnvQueryStatus::Type QueryStatus);
+	                                EEnvQueryStatus::Type QueryStatus);
 
 	UFUNCTION(BlueprintCallable, Category="Pickup")
 	void SpawnCoinsAtStart();
 
 	UFUNCTION()
 	void OnCoinSpawnQueryComplete(UEnvQueryInstanceBlueprintWrapper* QueryInstance,
-		EEnvQueryStatus::Type QueryStatus);
+	                              EEnvQueryStatus::Type QueryStatus);
 
 	UFUNCTION(BlueprintCallable, Category="Pickup")
 	void SpawnHealthAtStart();
 
 	UFUNCTION()
 	void OnHealthSpawnQueryComplete(UEnvQueryInstanceBlueprintWrapper* QueryInstance,
-		EEnvQueryStatus::Type QueryStatus);
+	                                EEnvQueryStatus::Type QueryStatus);
 
 	UFUNCTION()
 	void RespawnPlayerTimeElapsed(AController* Controller);
 
-	public:
+public:
 	UFUNCTION(Exec)
 	void KillAllBots();
 

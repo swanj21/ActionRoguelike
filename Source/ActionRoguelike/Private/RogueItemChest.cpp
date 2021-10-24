@@ -19,7 +19,11 @@ ARogueItemChest::ARogueItemChest()
 
 	TargetPitch = 100;
 
-	SetReplicates(true);
+	bReplicates = true;
+}
+
+void ARogueItemChest::OnActorLoaded_Implementation() {
+	OnRep_LidOpened();
 }
 
 void ARogueItemChest::Interact_Implementation(APawn* InstigatorPawn) {

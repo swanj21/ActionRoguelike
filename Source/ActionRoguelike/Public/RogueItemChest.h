@@ -18,12 +18,14 @@ public:
 	// Sets default values for this actor's properties
 	ARogueItemChest();
 
+	void OnActorLoaded_Implementation() override;
+
 	UPROPERTY(EditAnywhere, Category="Interaction")
 	float TargetPitch;
 
 protected:
 
-	UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly) // AKA: RepNotify
+	UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly, SaveGame) // AKA: RepNotify
 	bool bIsLidOpened;
 
 	UFUNCTION()

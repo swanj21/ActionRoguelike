@@ -3,6 +3,7 @@
 
 #include "RPlayerState.h"
 
+#include "RSaveGame.h"
 #include "ActionRoguelike/ActionRoguelike.h"
 #include "Net/UnrealNetwork.h"
 
@@ -25,6 +26,18 @@ float ARPlayerState::GetCurrentCredits() {
 
 float ARPlayerState::GetMaxCredits() {
 	return MaxCredits;
+}
+
+void ARPlayerState::SavePlayerState_Implementation(URSaveGame* SaveObject) {
+	if (SaveObject) {
+		SaveObject->Credits = CurrentCredits;
+	}
+}
+
+void ARPlayerState::LoadPlayerState_Implementation(URSaveGame* SaveObject) {
+	if (SaveObject) {
+		CurrentCredits = SaveObject->Credits;
+	}
 }
 
 void ARPlayerState::MulticastCreditsChanged_Implementation(float Delta) {

@@ -12,15 +12,13 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPawnChanged, APawn*, NewPawn);
  * 
  */
 UCLASS()
-class ACTIONROGUELIKE_API ARPlayerController : public APlayerController
-{
+class ACTIONROGUELIKE_API ARPlayerController : public APlayerController {
 	GENERATED_BODY()
 
-	protected:
-
+protected:
 	UPROPERTY(BlueprintAssignable)
 	FOnPawnChanged OnPawnChanged;
 
 	virtual void SetPawn(APawn* InPawn) override;
-	
+
 };

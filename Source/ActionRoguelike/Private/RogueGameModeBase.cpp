@@ -8,9 +8,14 @@
 #include "RGameplayFunctionLibrary.h"
 #include "RogueAttributeComponent.h"
 #include "RogueCharacter.h"
+#include "RogueGameplayInterface.h"
 #include "RPlayerState.h"
+#include "RSaveGame.h"
 #include "AI/RogueAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
+#include "GameFramework/GameStateBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("rogue.SpawnBots"), true, TEXT("Enable spawning of bots via a timer"), ECVF_Cheat);
 
@@ -23,6 +28,8 @@ ARogueGameModeBase::ARogueGameModeBase() {
 	RequiredObjectDistance = 1000.f;
 
 	PlayerStateClass = ARPlayerState::StaticClass();
+
+	SlotName = "SaveGame_01";
 }
 
 void ARogueGameModeBase::StartPlay() {
@@ -32,6 +39,98 @@ void ARogueGameModeBase::StartPlay() {
 	SpawnHealthAtStart();
 	SpawnCoinsAtStart();
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ARogueGameModeBase::SpawnBotTimerElapsed, MinionSpawnTimeInterval, true);
+}
+
+void ARogueGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) {
+	Super::InitGame(MapName, Options, ErrorMessage);
+
+	LoadSaveGame();
+}
+
+/**
+ * Save the game
+ */
+void ARogueGameModeBase::WriteSaveGame() {
+	// Iterate all player states, we don't have proper IDs to match yet to save multiplayer data(requires Steam or EOS)
+	for (int32 i = 0; i < GameState->PlayerArray.Num(); i++) {
+		ARPlayerState* PlayerState = Cast<ARPlayerState>(GameState->PlayerArray[i]);
+		if (PlayerState) {
+			PlayerState->SavePlayerState(CurrentSaveGame);
+		}
+	}
+
+	CurrentSaveGame->SavedActors.Empty();
+
+	// Iterate all actors in the world
+	for (FActorIterator It(GetWorld()); It; ++It) {
+		AActor* Actor = *It;
+		// Only interested in our gameplay actors
+		if (!Actor->Implements<URogueGameplayInterface>()) {
+			continue;
+		}
+
+		FActorSaveData ActorData;
+		ActorData.ActorName = Actor->GetName();
+		ActorData.Transform = Actor->GetActorTransform();
+
+		FMemoryWriter MemoryWriter(ActorData.ByteData);
+		FObjectAndNameAsStringProxyArchive Archive(MemoryWriter, true);
+		Archive.ArIsSaveGame = true;
+		Actor->Serialize(Archive);
+
+		CurrentSaveGame->SavedActors.Add(ActorData);
+	}
+	UGameplayStatics::SaveGameToSlot(CurrentSaveGame, SlotName, 0);
+}
+
+/**
+ * Load the previously saved game
+ */
+void ARogueGameModeBase::LoadSaveGame() {
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, 0)) {
+		// Find the save game file
+		CurrentSaveGame = Cast<URSaveGame>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
+		if (CurrentSaveGame == nullptr) {
+			UE_LOG(LogTemp, Warning, TEXT("Failed to load SaveGame data."))
+			return;
+		}
+		// Find information about the saved actors and update the transforms
+		for (FActorIterator It(GetWorld()); It; ++It) {
+			AActor* Actor = *It;
+			// Only interested in our gameplay actors
+			if (!Actor->Implements<URogueGameplayInterface>()) {
+				continue;
+			}
+			for (FActorSaveData ActorData : CurrentSaveGame->SavedActors) {
+				if (ActorData.ActorName == Actor->GetName()) {
+					Actor->SetActorTransform(ActorData.Transform);
+
+					FMemoryReader MemoryReader(ActorData.ByteData);
+					FObjectAndNameAsStringProxyArchive Archive(MemoryReader, true);
+					Archive.ArIsSaveGame = true;
+					// Convert binary array back into actor's variables
+					Actor->Serialize(Archive);
+
+					IRogueGameplayInterface::Execute_OnActorLoaded(Actor);
+					
+					break;
+				}
+			}
+		}
+		
+		UE_LOG(LogTemp, Warning, TEXT("Loaded SaveGame data."))
+	} else {
+		CurrentSaveGame = Cast<URSaveGame>(UGameplayStatics::CreateSaveGameObject(URSaveGame::StaticClass()));
+		UE_LOG(LogTemp, Warning, TEXT("Created new SaveGame data."))
+	}
+}
+
+void ARogueGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) {
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+	ARPlayerState* PlayerState = NewPlayer->GetPlayerState<ARPlayerState>();
+	if (PlayerState) {
+		PlayerState->LoadPlayerState(CurrentSaveGame);
+	}
 }
 
 void ARogueGameModeBase::SpawnBotTimerElapsed() {

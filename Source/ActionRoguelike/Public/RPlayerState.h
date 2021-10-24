@@ -6,40 +6,40 @@
 #include "GameFramework/PlayerState.h"
 #include "RPlayerState.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnCreditsChanged, class ARPlayerState*, AffectedPlayerState, float, NewCredits, float, Delta);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnCreditsChanged, class ARPlayerState*, AffectedPlayerState, float,
+                                               NewCredits, float, Delta);
 
 /**
  * 
  */
 UCLASS()
-class ACTIONROGUELIKE_API ARPlayerState : public APlayerState
-{
+class ACTIONROGUELIKE_API ARPlayerState : public APlayerState {
 	GENERATED_BODY()
 
-	public:
+public:
 	ARPlayerState();
-	
+
 	virtual void Tick(float DeltaSeconds) override;
 
-	// ------- //
-	// CREDITS //
-	// ------- //
-	public:
-	
 	UFUNCTION(BlueprintCallable, Category="Credits")
 	bool UpdateCredits(float Amount);
-	
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Credits")
 	float GetCurrentCredits();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Credits")
 	float GetMaxCredits();
-	
-	protected:
-	
+
+	UFUNCTION(BlueprintNativeEvent)
+	void SavePlayerState(class URSaveGame* SaveObject);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void LoadPlayerState(URSaveGame* SaveObject);
+
+protected:
 	UPROPERTY(BlueprintAssignable, Category="Credits")
 	FOnCreditsChanged OnCreditsChanged;
-	
+
 	UPROPERTY(Replicated, EditAnywhere, Category="Credits")
 	float CurrentCredits;
 
