@@ -39,7 +39,14 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="Activation")
 	virtual void EnableItem();
 
+	UFUNCTION()
+	void ChangeVisibility(bool IsVisible);
+
+	UPROPERTY(ReplicatedUsing="OnRep_ActiveChanged")
 	bool IsActive = true;
+
+	UFUNCTION()
+	void OnRep_ActiveChanged();
 
 public:	
 	// Called every frame

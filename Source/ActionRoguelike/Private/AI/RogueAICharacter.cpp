@@ -10,6 +10,7 @@
 #include "RGameplayFunctionLibrary.h"
 #include "RogueAttributeComponent.h"
 #include "RWorldUserWidget.h"
+#include "ActionRoguelike/ActionRoguelike.h"
 #include "AI/RogueAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Blueprint/UserWidget.h"
@@ -18,8 +19,7 @@
 #include "Perception/PawnSensingComponent.h"
 
 // Sets default values
-ARogueAICharacter::ARogueAICharacter()
-{
+ARogueAICharacter::ARogueAICharacter() {
 	PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComponent");
 
 	AttributeComponent = CreateDefaultSubobject<URogueAttributeComponent>("AttributeComponent");
@@ -33,39 +33,45 @@ ARogueAICharacter::ARogueAICharacter()
 
 	CreditsToGive = 10.f;
 	SpottedDisplayTime = 2.f;
-	
+
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 void ARogueAICharacter::PostInitializeComponents() {
 	Super::PostInitializeComponents();
-	
+
 	PawnSensingComponent->OnSeePawn.AddDynamic(this, &ARogueAICharacter::OnPawnSeen);
 	AttributeComponent->OnHealthChanged.AddDynamic(this, &ARogueAICharacter::OnHealthChanged);
 }
 
 void ARogueAICharacter::OnPawnSeen(APawn* Pawn) {
 	SetTargetActor(Pawn);
-	
-	DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.f, true);
+}
+
+void ARogueAICharacter::MulticastPawnSeen_Implementation() {
+	if (!ActiveSpottedWidget) {
+		LogOnScreen(this, FString::Printf(TEXT("There is no active spotted widget, creating & adding to viewport")),
+		            FColor::Red, 2.f);
+		ActiveSpottedWidget = CreateWidget<URWorldUserWidget>(GetWorld(), SpottedWidgetClass);
+		if (ActiveSpottedWidget) {
+			ActiveSpottedWidget->AttachedActor = this;
+			ActiveSpottedWidget->AddToViewport();
+
+			FTimerHandle TimerHandle;
+			GetWorldTimerManager().SetTimer(TimerHandle, this, &ARogueAICharacter::OnSpottedTimerFinished,
+			                                SpottedDisplayTime);
+		}
+	}
 }
 
 void ARogueAICharacter::OnHealthChanged(AActor* InstigatorActor, URogueAttributeComponent* OwningComponent,
-	float NewHealth, float Delta) {
+                                        float NewHealth, float Delta) {
 	if (Delta < 0.f) {
 
 		if (InstigatorActor != this) {
 			SetTargetActor(InstigatorActor);
 		}
 
-		if (!ActiveHealthBar) {
-			ActiveHealthBar = CreateWidget<URWorldUserWidget>(GetWorld(), HealthBarWidgetClass);
-			if (ActiveHealthBar) {
-				ActiveHealthBar->AttachedActor = this;
-				ActiveHealthBar->AddToViewport();
-			}
-		}
-		
 		// Hit flash
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->GetTimeSeconds());
 
@@ -75,7 +81,7 @@ void ARogueAICharacter::OnHealthChanged(AActor* InstigatorActor, URogueAttribute
 			if (ensure(AIController)) {
 				AIController->GetBrainComponent()->StopLogic("Killed");
 			}
-			
+
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
 			GetMesh()->SetCollisionProfileName("Ragdoll");
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -89,29 +95,28 @@ void ARogueAICharacter::OnHealthChanged(AActor* InstigatorActor, URogueAttribute
 }
 
 void ARogueAICharacter::SetTargetActor(AActor* NewTarget) {
-	AAIController* AIController = Cast<AAIController>(GetController());
-	if (AIController) {
-		UBlackboardComponent* BlackboardComponent = AIController->GetBlackboardComponent();
+	UBlackboardComponent* BlackboardComponent = GetBlackboard();
 
+	if (BlackboardComponent) {
 		AActor* CurrentTarget = Cast<AActor>(BlackboardComponent->GetValueAsObject("TargetActor"));
 		if (CurrentTarget != NewTarget) {
 			BlackboardComponent->SetValueAsObject("TargetActor", NewTarget);
 			// Create the player spotted widget and set a timer to destroy it
-			if (!ActiveSpottedWidget) {
-				ActiveSpottedWidget = CreateWidget<URWorldUserWidget>(GetWorld(), SpottedWidgetClass);
-				if (ActiveSpottedWidget) {
-					ActiveSpottedWidget->AttachedActor = this;
-					ActiveSpottedWidget->AddToViewport();
-					
-					FTimerHandle TimerHandle;
-					GetWorldTimerManager().SetTimer(TimerHandle, this, &ARogueAICharacter::OnSpottedTimerFinished, SpottedDisplayTime);
-				}
-			}
+			MulticastPawnSeen();
 		}
 	}
 }
 
+UBlackboardComponent* ARogueAICharacter::GetBlackboard() {
+	AAIController* AIController = Cast<AAIController>(GetController());
+	if (AIController) {
+		return AIController->GetBlackboardComponent();
+	}
+	return nullptr;
+}
+
 void ARogueAICharacter::OnSpottedTimerFinished() {
+	LogOnScreen(this, FString::Printf(TEXT("Spotted timer finished")), FColor::Blue);
 	if (ActiveSpottedWidget) {
 		ActiveSpottedWidget->RemoveFromParent();
 		ActiveSpottedWidget = nullptr;

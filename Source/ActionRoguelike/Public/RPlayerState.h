@@ -18,6 +18,8 @@ class ACTIONROGUELIKE_API ARPlayerState : public APlayerState
 
 	public:
 	ARPlayerState();
+	
+	virtual void Tick(float DeltaSeconds) override;
 
 	// ------- //
 	// CREDITS //
@@ -38,9 +40,12 @@ class ACTIONROGUELIKE_API ARPlayerState : public APlayerState
 	UPROPERTY(BlueprintAssignable, Category="Credits")
 	FOnCreditsChanged OnCreditsChanged;
 	
-	UPROPERTY(EditAnywhere, Category="Credits")
+	UPROPERTY(Replicated, EditAnywhere, Category="Credits")
 	float CurrentCredits;
 
 	UPROPERTY(EditDefaultsOnly, Category="Credits")
 	float MaxCredits;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastCreditsChanged(float Delta);
 };

@@ -47,7 +47,6 @@ bool URogueAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float 
 
 	float ActualDelta = Health - OldHealth;
 
-	// OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
 	if (ActualDelta != 0.f) {
 		MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
 	}
@@ -66,7 +65,7 @@ bool URogueAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float 
 	int32 OldRage = Rage;
 	Rage += RageToAdd;
 
-	OnRageChanged.Broadcast(InstigatorActor, this, Rage, Rage - OldRage);
+	MulticastRageChanged(InstigatorActor, Rage - OldRage);
 
 	return true;
 }
@@ -95,9 +94,13 @@ bool URogueAttributeComponent::ApplyRageChange(AActor* InstigatorActor, float De
 
 	int32 ActualDelta = Rage - OldRage;
 
-	OnRageChanged.Broadcast(InstigatorActor, this, Rage, ActualDelta);
+	MulticastRageChanged(InstigatorActor, ActualDelta);
 
 	return true;
+}
+
+void URogueAttributeComponent::MulticastRageChanged_Implementation(AActor* InstigatorActor, float Delta) {
+	OnRageChanged.Broadcast(InstigatorActor, this, Rage, Delta);
 }
 
 // ----------------
@@ -124,7 +127,8 @@ void URogueAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(URogueAttributeComponent, Health);
-	// DOREPLIFETIME(URogueAttributeComponent, MaxHealth);
+	DOREPLIFETIME(URogueAttributeComponent, Rage);
 
 	DOREPLIFETIME_CONDITION(URogueAttributeComponent, MaxHealth, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(URogueAttributeComponent, MaxRage, COND_OwnerOnly);
 }

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-static void LogOnScreen(UObject* WorldContext, FString Message, FColor Color = FColor::White, float DUration = 5.f) {
+static void LogOnScreen(UObject* WorldContext, FString Message, FColor Color = FColor::White, float Duration = 5.f) {
 	if (!ensure(WorldContext)) {
 		return;
 	}
@@ -16,6 +16,6 @@ static void LogOnScreen(UObject* WorldContext, FString Message, FColor Color = F
 
 	FString NetPrefix = World->IsNetMode(ENetMode::NM_Client) ? "{CLIENT} " : "{SERVER} ";
 	if (GEngine) {
-		GEngine->AddOnScreenDebugMessage(-1, DUration, Color, NetPrefix + Message);
+		GEngine->AddOnScreenDebugMessage(-1, Duration, Color, NetPrefix + Message);
 	}
 }

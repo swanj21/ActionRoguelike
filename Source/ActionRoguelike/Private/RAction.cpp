@@ -16,7 +16,7 @@ void URAction::Initialize(URActionComponent* NewActionComponent) {
 }
 
 void URAction::StartAction_Implementation(AActor* Instigator) {
-	LogOnScreen(this, FString::Printf(TEXT("Started %s"), *ActionName.ToString()), FColor::Green);
+	//LogOnScreen(this, FString::Printf(TEXT("Started %s"), *ActionName.ToString()), FColor::Green);
 	URActionComponent* NewActionComp = GetOwningComponent();
 	NewActionComp->ActiveGameplayTags.AppendTags(GrantedTags);
 
@@ -24,7 +24,7 @@ void URAction::StartAction_Implementation(AActor* Instigator) {
 }
 
 void URAction::StopAction_Implementation(AActor* Instigator) {
-	LogOnScreen(this, FString::Printf(TEXT("Stopped %s"), *ActionName.ToString()), FColor::Green);
+	//LogOnScreen(this, FString::Printf(TEXT("Stopped %s"), *ActionName.ToString()), FColor::Green);
 
 	URActionComponent* NewActionComp = GetOwningComponent();
 	NewActionComp->ActiveGameplayTags.RemoveTags(GrantedTags);

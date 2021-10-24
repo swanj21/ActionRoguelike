@@ -40,7 +40,7 @@ void URActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 			Action->IsRunning() ? TEXT("true") : TEXT("false"),
 			*GetNameSafe(GetOuter()));
 
-		LogOnScreen(this, ActionMessage, TextColor, 0.f);
+		//LogOnScreen(this, ActionMessage, TextColor, 0.f);
 	}
 }
 

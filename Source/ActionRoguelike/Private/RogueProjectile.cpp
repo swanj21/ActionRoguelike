@@ -31,7 +31,7 @@ ARogueProjectile::ARogueProjectile() {
 	FlightAudioComponent = CreateDefaultSubobject<UAudioComponent>("FlightAudioComponent");
 	FlightAudioComponent->SetupAttachment(SphereComponent);
 
-	SetReplicates(true);
+	bReplicates = true;
 }
 
 void ARogueProjectile::EndPlay(const EEndPlayReason::Type EndPlayReason) {

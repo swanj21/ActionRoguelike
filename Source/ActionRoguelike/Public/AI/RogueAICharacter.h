@@ -51,11 +51,17 @@ protected:
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPawnSeen();
+
 	UFUNCTION(BlueprintCallable, Category="Health")
 	void OnHealthChanged(AActor* InstigatorActor, class URogueAttributeComponent* OwningComponent, float NewHealth, float Delta);
 
 	UFUNCTION(BlueprintCallable, Category="AI")
 	void SetTargetActor(AActor* NewTarget);
+
+	UFUNCTION(BlueprintCallable, Category="AI")
+	class UBlackboardComponent* GetBlackboard();
 
 	// CREDITS
 

@@ -3,6 +3,9 @@
 
 #include "RoguePickup.h"
 
+#include "ActionRoguelike/ActionRoguelike.h"
+#include "Net/UnrealNetwork.h"
+
 // Sets default values
 ARoguePickup::ARoguePickup()
 {
@@ -15,7 +18,7 @@ ARoguePickup::ARoguePickup()
 
 	RespawnTimer = 10.f;
 
-	SetReplicates(true);
+	bReplicates = true;
 }
 
 // Called when the game starts or when spawned
@@ -27,22 +30,40 @@ void ARoguePickup::BeginPlay()
 
 void ARoguePickup::DisableItem() {
 	// Could also do RootComponent->SetVisibility(false, true) where the 'true' tells it to propagate to all children.
-	StaticMeshComponent->SetVisibility(false);
-	IsActive = false;
+	if (HasAuthority()) {
+		IsActive = false;
+		ChangeVisibility(false);
+	}
 }
 
 void ARoguePickup::EnableItem() {
-	StaticMeshComponent->SetVisibility(true);
-	IsActive = true;
+	if (HasAuthority()) {
+		IsActive = true;
+		ChangeVisibility(true);
+	}
 }
 
-// Called every frame
+void ARoguePickup::ChangeVisibility(bool IsVisible) {
+	StaticMeshComponent->SetVisibility(IsVisible);
+	LogOnScreen(this, FString::Printf(TEXT("%s visibility changed to %hhd"), *GetNameSafe(this), IsActive));
+}
+
+void ARoguePickup::OnRep_ActiveChanged() {
+	ChangeVisibility(IsActive);
+}
+
 void ARoguePickup::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ARoguePickup::Interact_Implementation(APawn* InstigatorPawn) {
 	UE_LOG(LogTemp, Warning, TEXT("Interact called on base RoguePickup class, should be overridden"))
+}
+
+void ARoguePickup::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(ARoguePickup, IsActive);
 }

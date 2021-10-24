@@ -23,6 +23,7 @@ AActor* URogueQueryContext_TargetActor::ProvideSingleActor(UObject* QuerierObjec
 	 		}
 	 	}
 	 }
+	// By default, give the position of the first player pawn(sucks for player 1)
 	return UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 }
 
@@ -31,6 +32,4 @@ void URogueQueryContext_TargetActor::ProvideContext(FEnvQueryInstance& QueryInst
 
 	AActor* OutActor;
 	ProvideSingleActor(nullptr, Cast<AActor>(QueryInstance.Owner), OutActor);
-
-	UE_LOG(LogTemp, Warning, TEXT("Provide context"))
 }

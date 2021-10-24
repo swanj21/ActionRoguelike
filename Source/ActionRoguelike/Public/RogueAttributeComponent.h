@@ -68,10 +68,10 @@ public:
 	// ------------------ //
 	// ------ RAGE ------ //
 	// ------------------ //
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Rage")
+	UPROPERTY(EditDefaultsOnly, Replicated, BlueprintReadOnly, Category="Rage")
 	int32 Rage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rage")
+	UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Rage")
 	int32 MaxRage;
 
 	UFUNCTION(BlueprintCallable, Category="Rage")
@@ -89,6 +89,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category="Rage")
 	FOnRageChanged OnRageChanged;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRageChanged(AActor* InstigatorActor, float Delta);
 
 	// -------------------- //
 	// ------ STATIC ------ //

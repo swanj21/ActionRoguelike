@@ -3,9 +3,20 @@
 
 #include "RPlayerState.h"
 
+#include "ActionRoguelike/ActionRoguelike.h"
+#include "Net/UnrealNetwork.h"
+
 ARPlayerState::ARPlayerState() {
+	PrimaryActorTick.bCanEverTick = true;
+	
 	MaxCredits = 1000.f;
 	CurrentCredits = 0.f;
+}
+
+void ARPlayerState::Tick(float DeltaSeconds) {
+	Super::Tick(DeltaSeconds);
+
+	//LogOnScreen(this, FString::Printf(TEXT("Credits: %f"), CurrentCredits), FColor::Green, 0.f);
 }
 
 float ARPlayerState::GetCurrentCredits() {
@@ -16,8 +27,11 @@ float ARPlayerState::GetMaxCredits() {
 	return MaxCredits;
 }
 
+void ARPlayerState::MulticastCreditsChanged_Implementation(float Delta) {
+	OnCreditsChanged.Broadcast(this, CurrentCredits, Delta);
+}
+
 bool ARPlayerState::UpdateCredits(float Amount) {
-	UE_LOG(LogTemp, Warning, TEXT("Updating credits in player state"))
 	if (Amount == 0) {
 		return false;
 	}
@@ -27,7 +41,16 @@ bool ARPlayerState::UpdateCredits(float Amount) {
 
 	float ActualDelta = CurrentCredits - OldAmount;
 
-	OnCreditsChanged.Broadcast(this, CurrentCredits, ActualDelta);
+	if (ActualDelta != 0.f) {
+		MulticastCreditsChanged(ActualDelta);
+	}
 	
 	return true;
+}
+
+void ARPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(ARPlayerState, CurrentCredits);
 }
