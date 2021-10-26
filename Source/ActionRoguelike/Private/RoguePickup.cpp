@@ -31,25 +31,26 @@ void ARoguePickup::BeginPlay()
 void ARoguePickup::DisableItem() {
 	// Could also do RootComponent->SetVisibility(false, true) where the 'true' tells it to propagate to all children.
 	if (HasAuthority()) {
-		IsActive = false;
+		bIsActive = false;
 		ChangeVisibility(false);
 	}
 }
 
 void ARoguePickup::EnableItem() {
 	if (HasAuthority()) {
-		IsActive = true;
+		bIsActive = true;
 		ChangeVisibility(true);
 	}
 }
 
-void ARoguePickup::ChangeVisibility(bool IsVisible) {
-	StaticMeshComponent->SetVisibility(IsVisible);
-	LogOnScreen(this, FString::Printf(TEXT("%s visibility changed to %hhd"), *GetNameSafe(this), IsActive));
+void ARoguePickup::ChangeVisibility(bool bIsVisible) {
+	StaticMeshComponent->SetVisibility(bIsVisible);
+	SetActorEnableCollision(bIsVisible);
+	LogOnScreen(this, FString::Printf(TEXT("%s visibility changed to %hhd"), *GetNameSafe(this), bIsActive));
 }
 
 void ARoguePickup::OnRep_ActiveChanged() {
-	ChangeVisibility(IsActive);
+	ChangeVisibility(bIsActive);
 }
 
 void ARoguePickup::Tick(float DeltaTime)
@@ -65,5 +66,5 @@ void ARoguePickup::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutL
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
-	DOREPLIFETIME(ARoguePickup, IsActive);
+	DOREPLIFETIME(ARoguePickup, bIsActive);
 }

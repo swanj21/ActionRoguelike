@@ -50,12 +50,10 @@ void ARogueAICharacter::OnPawnSeen(APawn* Pawn) {
 
 void ARogueAICharacter::MulticastPawnSeen_Implementation() {
 	if (!ActiveSpottedWidget) {
-		LogOnScreen(this, FString::Printf(TEXT("There is no active spotted widget, creating & adding to viewport")),
-		            FColor::Red, 2.f);
 		ActiveSpottedWidget = CreateWidget<URWorldUserWidget>(GetWorld(), SpottedWidgetClass);
 		if (ActiveSpottedWidget) {
 			ActiveSpottedWidget->AttachedActor = this;
-			ActiveSpottedWidget->AddToViewport();
+			ActiveSpottedWidget->AddToViewport(10);
 
 			FTimerHandle TimerHandle;
 			GetWorldTimerManager().SetTimer(TimerHandle, this, &ARogueAICharacter::OnSpottedTimerFinished,

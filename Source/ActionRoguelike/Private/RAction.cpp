@@ -22,16 +22,22 @@ void URAction::StartAction_Implementation(AActor* Instigator) {
 
 	RepData.bIsRunning = true;
 	RepData.Instigator = Instigator;
+
+	if (GetOwningComponent()->GetOwnerRole() == ROLE_Authority) {
+		TimeStarted = GetWorld()->GetTimeSeconds();
+	}
+
+	GetOwningComponent()->OnActionStarted.Broadcast(GetOwningComponent(), this);
 }
 
 void URAction::StopAction_Implementation(AActor* Instigator) {
-	//LogOnScreen(this, FString::Printf(TEXT("Stopped %s"), *ActionName.ToString()), FColor::Green);
-
 	URActionComponent* NewActionComp = GetOwningComponent();
 	NewActionComp->ActiveGameplayTags.RemoveTags(GrantedTags);
 
 	RepData.bIsRunning = false;
 	RepData.Instigator = Instigator;
+
+	GetOwningComponent()->OnActionStopped.Broadcast(GetOwningComponent(), this);
 }
 
 bool URAction::CanStart_Implementation(AActor* Instigator) {
@@ -79,4 +85,5 @@ void URAction::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifet
 
 	DOREPLIFETIME(URAction, ActionComp);
 	DOREPLIFETIME(URAction, RepData);
+	DOREPLIFETIME(URAction, TimeStarted);
 }

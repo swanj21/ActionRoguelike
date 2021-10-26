@@ -1,5 +1,17 @@
 # ActionRoguelike
 
+## Personal Goals
+
+----
+
+**Replace health bars with a ProgressBar instead of the M_HealthBar and hook it up**  
+_Right now, we are using the M_HealthBar to display health and rage instead of the more recommended
+ProgressBar_
+
+**Create Intro level**  
+_Create an actual level for the game_
+
+----
 ## Assignments
 
 ----

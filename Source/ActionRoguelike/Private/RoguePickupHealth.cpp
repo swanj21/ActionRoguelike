@@ -13,7 +13,7 @@ ARoguePickupHealth::ARoguePickupHealth() {
 }
 
 void ARoguePickupHealth::Interact_Implementation(APawn* InstigatorPawn) {
-	if (!InstigatorPawn || !IsActive) {
+	if (!InstigatorPawn || !bIsActive) {
 		return;
 	}
 

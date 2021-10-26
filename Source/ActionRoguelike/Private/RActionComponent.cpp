@@ -75,7 +75,7 @@ bool URActionComponent::AddAction(AActor* Instigator, TSubclassOf<URAction> Acti
 }
 
 void URActionComponent::RemoveAction(URAction* ActionToRemove) {
-	if (ensure(ActionToRemove && !ActionToRemove->IsRunning())) {
+	if (ensure(ActionToRemove) && !ActionToRemove->IsRunning()) {
 		return;
 	}
 

@@ -10,18 +10,17 @@
  * 
  */
 UCLASS()
-class ACTIONROGUELIKE_API URActionEffect : public URAction
-{
+class ACTIONROGUELIKE_API URActionEffect : public URAction {
 	GENERATED_BODY()
 
-	public:
+public:
 	URActionEffect();
 
 	void StartAction_Implementation(AActor* Instigator) override;
 
 	void StopAction_Implementation(AActor* Instigator) override;
-	
-	protected:
+
+protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Effect")
 	float Duration;
 
@@ -33,4 +32,7 @@ class ACTIONROGUELIKE_API URActionEffect : public URAction
 
 	UFUNCTION(BlueprintNativeEvent, Category="Effect")
 	void ExecutePeriodicEffect(AActor* Instigator);
+
+	UFUNCTION(BlueprintCallable)
+	float GetTimeRemaining() const;
 };

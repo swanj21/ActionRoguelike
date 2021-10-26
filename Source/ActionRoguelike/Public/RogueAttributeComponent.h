@@ -90,7 +90,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="Rage")
 	FOnRageChanged OnRageChanged;
 
-	UFUNCTION(NetMulticast, Reliable)
+	UFUNCTION(NetMulticast, Unreliable) // Unreliable because the changes are cosmetic only
 	void MulticastRageChanged(AActor* InstigatorActor, float Delta);
 
 	// -------------------- //

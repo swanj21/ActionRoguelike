@@ -40,12 +40,15 @@ protected:
 	UPROPERTY(BlueprintAssignable, Category="Credits")
 	FOnCreditsChanged OnCreditsChanged;
 
-	UPROPERTY(Replicated, EditAnywhere, Category="Credits")
+	UPROPERTY(ReplicatedUsing="OnRep_Credits", EditAnywhere, Category="Credits")
 	float CurrentCredits;
 
 	UPROPERTY(EditDefaultsOnly, Category="Credits")
 	float MaxCredits;
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastCreditsChanged(float Delta);
+	UFUNCTION()
+	void OnRep_Credits(float OldCredits);
+
+	// UFUNCTION(NetMulticast, Unreliable)
+	// void MulticastCreditsChanged(float Delta);
 };

@@ -7,13 +7,14 @@
 #include "Components/ActorComponent.h"
 #include "RActionComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActionStateChanged, class URActionComponent*, OwningComp,
+                                             class URAction*, Action);
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class ACTIONROGUELIKE_API URActionComponent : public UActorComponent
-{
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+class ACTIONROGUELIKE_API URActionComponent : public UActorComponent {
 	GENERATED_BODY()
 
-public:	
+public:
 	URActionComponent();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tags")
@@ -47,8 +48,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Actions")
 	TArray<TSubclassOf<URAction>> DefaultActions;
 
-public:	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+public:
+	UPROPERTY(BlueprintAssignable)
+	FOnActionStateChanged OnActionStarted;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnActionStateChanged OnActionStopped;
+	
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+	                           FActorComponentTickFunction* ThisTickFunction) override;
 
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 };

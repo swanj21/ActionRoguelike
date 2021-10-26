@@ -51,7 +51,7 @@ protected:
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
 
-	UFUNCTION(NetMulticast, Reliable)
+	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastPawnSeen();
 
 	UFUNCTION(BlueprintCallable, Category="Health")

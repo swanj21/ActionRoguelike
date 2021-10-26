@@ -28,6 +28,10 @@ float ARPlayerState::GetMaxCredits() {
 	return MaxCredits;
 }
 
+void ARPlayerState::OnRep_Credits(float OldCredits) {
+	OnCreditsChanged.Broadcast(this, CurrentCredits, CurrentCredits - OldCredits);
+}
+
 void ARPlayerState::SavePlayerState_Implementation(URSaveGame* SaveObject) {
 	if (SaveObject) {
 		SaveObject->Credits = CurrentCredits;
@@ -40,23 +44,12 @@ void ARPlayerState::LoadPlayerState_Implementation(URSaveGame* SaveObject) {
 	}
 }
 
-void ARPlayerState::MulticastCreditsChanged_Implementation(float Delta) {
-	OnCreditsChanged.Broadcast(this, CurrentCredits, Delta);
-}
-
 bool ARPlayerState::UpdateCredits(float Amount) {
 	if (Amount == 0) {
 		return false;
 	}
-	float OldAmount = CurrentCredits;
 	CurrentCredits += Amount;
 	CurrentCredits = FMath::Clamp(CurrentCredits, 0.f, MaxCredits);
-
-	float ActualDelta = CurrentCredits - OldAmount;
-
-	if (ActualDelta != 0.f) {
-		MulticastCreditsChanged(ActualDelta);
-	}
 	
 	return true;
 }

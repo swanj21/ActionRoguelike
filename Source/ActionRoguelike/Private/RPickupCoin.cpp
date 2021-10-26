@@ -10,7 +10,7 @@ ARPickupCoin::ARPickupCoin() {
 }
 
 void ARPickupCoin::Interact_Implementation(APawn* InstigatorPawn) {
-	if (!IsActive || !InstigatorPawn) { return; }
+	if (!bIsActive || !InstigatorPawn) { return; }
 	
 	if (URGameplayFunctionLibrary::GiveCredits(InstigatorPawn->GetController(), CreditsToGive)) {
 		DisableItem();

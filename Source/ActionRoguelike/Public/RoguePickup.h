@@ -40,10 +40,10 @@ protected:
 	virtual void EnableItem();
 
 	UFUNCTION()
-	void ChangeVisibility(bool IsVisible);
+	void ChangeVisibility(bool bIsVisible);
 
 	UPROPERTY(ReplicatedUsing="OnRep_ActiveChanged")
-	bool IsActive = true;
+	bool bIsActive = true;
 
 	UFUNCTION()
 	void OnRep_ActiveChanged();

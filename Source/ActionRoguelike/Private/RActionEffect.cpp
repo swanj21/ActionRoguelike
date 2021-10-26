@@ -4,6 +4,7 @@
 #include "RActionEffect.h"
 
 #include "RActionComponent.h"
+#include "GameFramework/GameStateBase.h"
 
 URActionEffect::URActionEffect() {
 	bAutoStart = true;
@@ -39,8 +40,6 @@ void URActionEffect::StopAction_Implementation(AActor* Instigator) {
 		ExecutePeriodicEffect(Instigator);
 	}
 	
-	Super::StopAction_Implementation(Instigator);
-
 	GetWorld()->GetTimerManager().ClearTimer(DurationHandle);
 	GetWorld()->GetTimerManager().ClearTimer(PeriodHandle);
 
@@ -49,4 +48,16 @@ void URActionEffect::StopAction_Implementation(AActor* Instigator) {
 	if (ActionComponent) {
 		ActionComponent->RemoveAction(this);
 	}
+	
+	Super::StopAction_Implementation(Instigator);
+}
+
+float URActionEffect::GetTimeRemaining() const {
+	AGameStateBase* GameState = GetWorld()->GetGameState<AGameStateBase>();
+	if (GameState) {
+		float EndTime = TimeStarted + Duration;
+	
+		return EndTime - GameState->GetServerWorldTimeSeconds();
+	}
+	return Duration;
 }
