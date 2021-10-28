@@ -16,6 +16,8 @@ class ACTIONROGUELIKE_API ARoguePickup : public AActor, public IRogueGameplayInt
 	GENERATED_BODY()
 
 	void Interact_Implementation(APawn* InstigatorPawn) override;
+
+	FText GetInteractText_Implementation(APawn* InstigatorPawn) override;
 	
 public:	
 	// Sets default values for this actor's properties

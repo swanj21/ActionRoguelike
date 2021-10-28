@@ -27,8 +27,7 @@ ARogueAICharacter::ARogueAICharacter() {
 	ActionComponent = CreateDefaultSubobject<URActionComponent>("ActionComponent");
 
 	TimeToHitParamName = "TimeToHit";
-
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+	
 	GetMesh()->SetGenerateOverlapEvents(true);
 
 	CreditsToGive = 10.f;

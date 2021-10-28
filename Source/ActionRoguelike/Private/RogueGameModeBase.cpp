@@ -5,13 +5,17 @@
 
 #include "DrawDebugHelpers.h"
 #include "EngineUtils.h"
+#include "RActionComponent.h"
 #include "RGameplayFunctionLibrary.h"
+#include "RMonsterData.h"
 #include "RogueAttributeComponent.h"
 #include "RogueCharacter.h"
 #include "RogueGameplayInterface.h"
 #include "RPlayerState.h"
 #include "RSaveGame.h"
+#include "ActionRoguelike/ActionRoguelike.h"
 #include "AI/RogueAICharacter.h"
+#include "Engine/AssetManager.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -28,8 +32,6 @@ ARogueGameModeBase::ARogueGameModeBase() {
 	RequiredObjectDistance = 1000.f;
 
 	PlayerStateClass = ARPlayerState::StaticClass();
-
-	SlotName = "SaveGame_01";
 }
 
 void ARogueGameModeBase::StartPlay() {
@@ -44,6 +46,10 @@ void ARogueGameModeBase::StartPlay() {
 void ARogueGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) {
 	Super::InitGame(MapName, Options, ErrorMessage);
 
+	FString SelectedSaveSlot = UGameplayStatics::ParseOption(Options, "SaveGame");
+	if (SelectedSaveSlot.Len() > 0) {
+		SlotName = SelectedSaveSlot;
+	}
 	LoadSaveGame();
 }
 
@@ -180,9 +186,28 @@ void ARogueGameModeBase::OnMinionSpawnQueryComplete(UEnvQueryInstanceBlueprintWr
 	QueryInstance->GetQueryResultsAsLocations(Locations);
 
 	if (Locations.IsValidIndex(0)) {
-		UE_LOG(LogTemp, Log, TEXT("Spawning new bot"))
-		GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator);
-		DrawDebugSphere(GetWorld(), Locations[0], 30.f, 8, FColor::Blue, true, 5.f,0, 3.f);
+		if (MonsterTable) {
+			TArray<FMonsterInfoRow*> Monsters;
+			MonsterTable->GetAllRows("", Monsters);
+
+			int32 RandomIndex = FMath::RandRange(0, Monsters.Num() - 1);
+			FMonsterInfoRow* SelectedMonster = Monsters[RandomIndex];
+
+			UAssetManager* Manager = UAssetManager::GetIfValid();
+			if (Manager) {
+				TArray<FName> Bundles;
+				FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this,
+					&ARogueGameModeBase::OnMonsterLoaded,
+					SelectedMonster->MonsterId,
+					Locations[0]);
+
+				LogOnScreen(this, FString::Printf(TEXT("Loading monster")), FColor::Green);
+				
+				Manager->LoadPrimaryAsset(SelectedMonster->MonsterId,
+					Bundles/* Bundles is which part of the asset to load */,
+					Delegate);
+			}
+		}
 	}
 }
 
@@ -255,7 +280,6 @@ void ARogueGameModeBase::SpawnHealthAtStart() {
 
 void ARogueGameModeBase::OnHealthSpawnQueryComplete(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus) {
 	if (QueryStatus != EEnvQueryStatus::Success) {
-		UE_LOG(LogTemp, Error, TEXT("Spawn health EQS query failed"))
 		return;
 	}
 	
@@ -268,6 +292,28 @@ void ARogueGameModeBase::OnHealthSpawnQueryComplete(UEnvQueryInstanceBlueprintWr
 		GetWorld()->SpawnActor<AActor>(HealthPotionClass, Locations[Index], FRotator::ZeroRotator);
 	}
 }
+
+void ARogueGameModeBase::OnMonsterLoaded(FPrimaryAssetId LoadedId, FVector SpawnLocation) {
+	UAssetManager* Manager = UAssetManager::GetIfValid();
+	if (Manager) {
+		URMonsterData* MonsterData = Cast<URMonsterData>(Manager->GetPrimaryAssetObject(LoadedId));
+		if (MonsterData) {
+			AActor* NewMonster = GetWorld()->SpawnActor<AActor>(MonsterData->MonsterClass, SpawnLocation, FRotator::ZeroRotator);
+			if (NewMonster) {
+				LogOnScreen(this, FString::Printf(TEXT("Spawned enemy: %s (%s)"), *GetNameSafe(NewMonster), *GetNameSafe(MonsterData)));
+			
+				// Grant special actions, buffs, debuffs, etc...
+				URActionComponent* ActionComp = Cast<URActionComponent>(NewMonster->GetComponentByClass(URActionComponent::StaticClass()));
+				if (ActionComp) {
+					for (TSubclassOf<URAction> ActionClass : MonsterData->Actions) {
+						ActionComp->AddAction(NewMonster, ActionClass);
+					}
+				}
+			}
+		}
+	}
+}
+
 
 void ARogueGameModeBase::RespawnPlayerTimeElapsed(AController* Controller) {
 	if (ensure(Controller)) {

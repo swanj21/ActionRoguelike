@@ -3,10 +3,37 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
 #include "EnvironmentQuery/EnvQueryTypes.h"
 #include "GameFramework/GameModeBase.h"
 #include "RogueGameModeBase.generated.h"
 
+USTRUCT()
+struct FMonsterInfoRow : public FTableRowBase {
+	GENERATED_BODY()
+
+public:
+	FMonsterInfoRow() {
+		Weight = 1.f;
+		SpawnCost = 5.f;
+		KillReward = 5.f;
+	}
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FPrimaryAssetId MonsterId;
+
+	/* Relative chance to pick this monster */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Weight;
+
+	/* Points required by gamemode to spawn this unit */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float SpawnCost;
+
+	/* Amount of credits awarded to killer of this unit */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float KillReward;	
+};
 /**
  * 
  */
@@ -29,13 +56,17 @@ public:
 	void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 	
 protected:
+
+	UPROPERTY(EditDefaultsOnly, Category="AI")
+	class UDataTable* MonsterTable;
+	
 	FString SlotName;
 	
 	UPROPERTY()
 	class URSaveGame* CurrentSaveGame;
 	
-	UPROPERTY(EditDefaultsOnly, Category="AI")
-	TSubclassOf<AActor> MinionClass;
+	// UPROPERTY(EditDefaultsOnly, Category="AI")
+	// TSubclassOf<AActor> MinionClass;
 
 	UPROPERTY(EditDefaultsOnly, Category="Pickup")
 	TSubclassOf<AActor> CoinClass;
@@ -101,6 +132,9 @@ protected:
 
 	UFUNCTION()
 	void RespawnPlayerTimeElapsed(AController* Controller);
+
+	UFUNCTION()
+	void OnMonsterLoaded(FPrimaryAssetId LoadedId, FVector SpawnLocation);
 
 public:
 	UFUNCTION(Exec)

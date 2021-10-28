@@ -62,6 +62,10 @@ void ARoguePickup::Interact_Implementation(APawn* InstigatorPawn) {
 	UE_LOG(LogTemp, Warning, TEXT("Interact called on base RoguePickup class, should be overridden"))
 }
 
+FText ARoguePickup::GetInteractText_Implementation(APawn* InstigatorPawn) {
+	return FText::GetEmpty();
+}
+
 void ARoguePickup::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

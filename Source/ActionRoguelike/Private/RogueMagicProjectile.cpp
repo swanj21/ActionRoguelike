@@ -17,6 +17,7 @@ ARogueMagicProjectile::ARogueMagicProjectile() {
 	PrimaryActorTick.bCanEverTick = true;
 	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ARogueMagicProjectile::OnActorOverlap);
 
+	InitialLifeSpan = 4.f;
 	Damage = 20.f;
 }
 

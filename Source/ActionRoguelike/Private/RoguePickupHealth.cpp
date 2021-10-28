@@ -7,6 +7,8 @@
 #include "RogueAttributeComponent.h"
 #include "RPlayerState.h"
 
+#define LOCTEXT_NAMESPACE "InteractableActors"
+
 ARoguePickupHealth::ARoguePickupHealth() {
 	CreditCost = 50.f;
 	HealValue = 50.f;
@@ -35,6 +37,17 @@ void ARoguePickupHealth::Interact_Implementation(APawn* InstigatorPawn) {
 	}	
 }
 
+FText ARoguePickupHealth::GetInteractText_Implementation(APawn* InstigatorPawn) {
+	URogueAttributeComponent* AttributeComp = URogueAttributeComponent::GetAttributes(InstigatorPawn);
+	if (AttributeComp && AttributeComp->GetHealth() == AttributeComp->GetMaxHealth()) {
+		return LOCTEXT("HealthPotion_FullHealthWarning", "Already at full health");
+	}
+
+	// Without #define LOCTEXT_NAMESPACE -
+	// return FText::Format(NSLOCTEXT("InteractableActors", "HealthPotion_InteractMessage", "Cost {0} Credits.  Restore health to maximum"), CreditCost);
+	return FText::Format(LOCTEXT("HealthPotion_InteractMessage", "Cost {0} Credits.  Restore health to maximum"), CreditCost);
+}
+
 bool ARoguePickupHealth::HasEnoughCredits(AController* Controller) {
 	ARPlayerState* PlayerState = Controller->GetPlayerState<ARPlayerState>();
 	if (ensure(PlayerState)) {
@@ -42,3 +55,5 @@ bool ARoguePickupHealth::HasEnoughCredits(AController* Controller) {
 	}
 	return false;
 }
+
+#undef LOCTEXT_NAMESPACE

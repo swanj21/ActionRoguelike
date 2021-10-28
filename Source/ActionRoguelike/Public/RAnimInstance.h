@@ -13,5 +13,15 @@ UCLASS()
 class ACTIONROGUELIKE_API URAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
-	
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Animation")
+	bool bIsStunned;
+
+	UPROPERTY(BlueprintReadOnly, Category="Animation")
+	class URActionComponent* ActionComp;
+
+	void NativeInitializeAnimation() override;
+
+	void NativeUpdateAnimation(float DeltaSeconds) override;
 };

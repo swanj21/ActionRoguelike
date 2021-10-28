@@ -18,6 +18,8 @@ class ACTIONROGUELIKE_API ARoguePickupHealth : public ARoguePickup
 
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 
+	FText GetInteractText_Implementation(APawn* InstigatorPawn) override;
+
 	protected:
 	UPROPERTY(EditAnywhere, Category="Credits")
 	float CreditCost;
