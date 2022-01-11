@@ -10,16 +10,16 @@
  * 
  */
 UCLASS()
-class ACTIONROGUELIKE_API URGameplayFunctionLibrary : public UBlueprintFunctionLibrary
-{
+class ACTIONROGUELIKE_API URGameplayFunctionLibrary : public UBlueprintFunctionLibrary {
 	GENERATED_BODY()
 
-	public:
+public:
 	UFUNCTION(BlueprintCallable, Category="Gameplay")
 	static bool ApplyDamage(AActor* DamageCauser, AActor* TargetActor, float DamageAmount);
 
 	UFUNCTION(BlueprintCallable, Category="Gameplay")
-	static bool ApplyDirectionalDamage(AActor* DamageCauser, AActor* TargetActor, float DamageAmount, const FHitResult& HitResult);
+	static bool ApplyDirectionalDamage(AActor* DamageCauser, AActor* TargetActor, float DamageAmount,
+	                                   const FHitResult& HitResult);
 
 	UFUNCTION(BlueprintCallable, Category="Credits")
 	static bool GiveCredits(AController* To, float Amount);
@@ -27,6 +27,6 @@ class ACTIONROGUELIKE_API URGameplayFunctionLibrary : public UBlueprintFunctionL
 	UFUNCTION(BlueprintCallable, Category="Credits")
 	static bool TakeCredits(AController* From, float Amount);
 
-	private:
+private:
 	static bool ModifyCredits(AController* Controller, float Amount);
 };

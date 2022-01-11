@@ -34,6 +34,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float KillReward;	
 };
+
 /**
  * 
  */

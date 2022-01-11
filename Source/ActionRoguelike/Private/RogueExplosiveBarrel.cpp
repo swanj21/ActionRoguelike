@@ -9,7 +9,6 @@
 
 // Sets default values
 ARogueExplosiveBarrel::ARogueExplosiveBarrel() {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Setting up the Static Mesh component

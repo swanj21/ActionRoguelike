@@ -23,11 +23,11 @@ void URAction::StartAction_Implementation(AActor* Instigator) {
 	RepData.bIsRunning = true;
 	RepData.Instigator = Instigator;
 
-	if (GetOwningComponent()->GetOwnerRole() == ROLE_Authority) {
+	if (NewActionComp->GetOwnerRole() == ROLE_Authority) {
 		TimeStarted = GetWorld()->GetTimeSeconds();
 	}
 
-	GetOwningComponent()->OnActionStarted.Broadcast(GetOwningComponent(), this);
+	NewActionComp->OnActionStarted.Broadcast(NewActionComp, this);
 }
 
 void URAction::StopAction_Implementation(AActor* Instigator) {
